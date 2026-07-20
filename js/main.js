@@ -148,7 +148,7 @@ function bindReplay() {
 async function bootstrap() {
   document.querySelector("#year").textContent = new Date().getFullYear();
   elements.shakeButton.disabled = true;
-  setStatus("Constructing the frog oracle from real-time 3D geometry...");
+  setStatus("Assembling the BeeTales frog oracle...");
 
   try {
     const [frogResult] = await Promise.allSettled([frog.init(), scene.init()]);
@@ -172,8 +172,8 @@ async function bootstrap() {
     elements.orb.classList.remove("is-loading");
     elements.orb.classList.add("webgl-failed");
     elements.shakeButton.disabled = true;
-    setStatus("WebGL or the Three.js module could not load. Try a current browser with internet access.");
-    accessibility.announce("The three-dimensional frog could not load.");
+    setStatus("The frog interface could not initialize. Reload the page in a current browser.");
+    accessibility.announce("The frog oracle could not load.");
   }
 }
 

@@ -55,7 +55,49 @@
 
       <div id="frog-orb" class="frog-orb is-loading" role="button" tabindex="0"
            aria-label="Three-dimensional frog oracle. Hold and drag quickly left and right to shake, or press Enter or Space.">
-        <canvas id="frog-canvas" class="frog-canvas" aria-hidden="true"></canvas>
+        <div id="frog-model" class="frog-model" aria-hidden="true">
+          <div class="frog-face frog-front">
+            <div class="frog-surface-glow"></div>
+            <div class="helmet">
+              <div class="helmet-dome"></div>
+              <div class="helmet-ridge"></div>
+              <div class="helmet-band"></div>
+              <div class="helmet-brim"></div>
+            </div>
+
+            <div class="goggle-strap"></div>
+            <div class="frog-eye frog-eye--left">
+              <div class="goggle-lens">
+                <div class="frog-iris"><div class="frog-pupil"><span class="eye-shine eye-shine--large"></span><span class="eye-shine eye-shine--small"></span></div></div>
+              </div>
+            </div>
+            <div class="frog-eye frog-eye--right">
+              <div class="goggle-lens">
+                <div class="frog-iris"><div class="frog-pupil"><span class="eye-shine eye-shine--large"></span><span class="eye-shine eye-shine--small"></span></div></div>
+              </div>
+            </div>
+            <div class="goggle-bridge"></div>
+
+            <div class="frog-muzzle">
+              <span class="nostril nostril--left"></span>
+              <span class="nostril nostril--right"></span>
+              <span class="frog-smile"></span>
+              <span class="smile-corner smile-corner--left"></span>
+              <span class="smile-corner smile-corner--right"></span>
+            </div>
+            <div class="frog-belly"></div>
+            <div class="sphere-highlight"></div>
+          </div>
+
+          <div class="frog-face frog-back">
+            <div class="back-highlight"></div>
+            <div class="oracle-socket">
+              <div class="oracle-rim"></div>
+              <div class="oracle-triangle"></div>
+            </div>
+          </div>
+          <div class="frog-equator"></div>
+        </div>
 
         <div id="orb-loading" class="orb-loading" aria-live="polite">
           <span class="loading-orbit" aria-hidden="true"></span>
@@ -107,7 +149,7 @@
         <p><strong>Desktop:</strong> hold the frog and drag rapidly left and right. Release when the meter is full.</p>
         <p><strong>Mobile:</strong> drag the frog quickly with one finger, or use the Shake button.</p>
         <p><strong>Keyboard:</strong> focus the frog and press Enter or Space.</p>
-        <p>Answers range from harmless nonsense to rare moments of actual wisdom. The frog is a real-time 3D model built from geometry. The FATAL result is extremely rare and starts a cancellable joke redirect.</p>
+        <p>Answers range from harmless nonsense to rare moments of actual wisdom. The frog is a browser-rendered 3D object with a rotating front and answer side. The FATAL result is extremely rare and starts a cancellable joke redirect.</p>
       </div>
       <button class="primary-button dialog-confirm" value="close">I UNDERSTAND THE RISKS</button>
     </form>

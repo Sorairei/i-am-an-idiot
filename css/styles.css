@@ -459,3 +459,371 @@ button:focus-visible, [tabindex]:focus-visible, a:focus-visible {
 .frog-orb.webgl-failed .orb-loading,
 .frog-orb.webgl-failed .model-label,
 .frog-orb.webgl-failed .grip-hint { display: none; }
+
+/* --------------------------------------------------------------------------
+   Guaranteed browser-rendered 3D frog
+   -------------------------------------------------------------------------- */
+.frog-canvas { display: none !important; }
+
+.frog-model {
+  --eye-x: 0px;
+  --eye-y: 0px;
+  --shine-x: 0px;
+  --shine-y: 0px;
+  --energy: 0;
+  --frog-theme: #aaff2c;
+  position: absolute;
+  z-index: 3;
+  inset: 4.5%;
+  visibility: hidden;
+  transform-style: preserve-3d;
+  transform-origin: 50% 50%;
+  will-change: transform;
+  pointer-events: none;
+}
+
+.frog-face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 50%;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border: clamp(4px, .75vw, 8px) solid #032d18;
+  box-shadow:
+    inset 22px -28px 44px rgba(0, 28, 13, .58),
+    inset -18px 20px 32px rgba(215, 255, 91, .18),
+    0 0 calc(18px + 30px * var(--energy)) color-mix(in srgb, var(--frog-theme) 44%, transparent),
+    0 26px 35px rgba(0, 0, 0, .58);
+}
+
+.frog-front {
+  background:
+    radial-gradient(circle at 35% 20%, rgba(226,255,109,.68) 0 4%, transparent 21%),
+    radial-gradient(circle at 67% 68%, rgba(39,121,8,.30), transparent 38%),
+    linear-gradient(145deg, #a9f52a 0%, #70d716 35%, #35a60e 72%, #087039 100%);
+}
+
+.frog-front::before {
+  content: "";
+  position: absolute;
+  inset: 2.5%;
+  border-radius: 50%;
+  border: 2px solid rgba(213,255,95,.22);
+  box-shadow: inset 0 0 34px rgba(255,255,255,.10);
+}
+
+.frog-front::after {
+  content: "";
+  position: absolute;
+  z-index: 20;
+  inset: 0;
+  border-radius: 50%;
+  background: linear-gradient(112deg, rgba(255,255,255,.26), transparent 22% 70%, rgba(0,0,0,.2));
+  mix-blend-mode: screen;
+  opacity: .45;
+}
+
+.frog-back {
+  transform: rotateY(180deg) translateZ(1px);
+  background:
+    radial-gradient(circle at 35% 20%, rgba(207,255,95,.38), transparent 20%),
+    radial-gradient(circle at 50% 52%, #268b17 0 46%, #116b2e 72%, #043a20 100%);
+}
+
+.frog-equator {
+  position: absolute;
+  z-index: -1;
+  inset: 1.2%;
+  border-radius: 50%;
+  border: clamp(7px, 1.1vw, 13px) solid #0a4a25;
+  box-shadow: 0 0 18px rgba(145,255,44,.22), inset 0 0 20px rgba(0,0,0,.5);
+  transform: rotateY(88deg) scaleX(.23);
+  opacity: .92;
+}
+
+.frog-surface-glow {
+  position: absolute;
+  left: 16%;
+  top: 10%;
+  width: 35%;
+  height: 19%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(255,255,255,.35), transparent 70%);
+  filter: blur(5px);
+  transform: rotate(-20deg);
+}
+
+/* Worker helmet inspired by the supplied BeeTales avatar. */
+.helmet {
+  position: absolute;
+  z-index: 8;
+  left: 17%;
+  top: -2%;
+  width: 66%;
+  height: 36%;
+  filter: drop-shadow(0 7px 3px rgba(0,0,0,.42));
+}
+.helmet-dome {
+  position: absolute;
+  left: 6%;
+  right: 6%;
+  top: 0;
+  height: 82%;
+  border: clamp(3px, .5vw, 6px) solid #9b4c00;
+  border-bottom-width: 2px;
+  border-radius: 52% 52% 18% 18% / 78% 78% 18% 18%;
+  background:
+    radial-gradient(circle at 38% 18%, #ffe660 0 7%, transparent 27%),
+    linear-gradient(112deg, #ffda28 0%, #ffb300 50%, #e77b00 100%);
+  box-shadow: inset -12px -8px 15px rgba(150,58,0,.24), inset 9px 8px 12px rgba(255,255,255,.25);
+}
+.helmet-ridge {
+  position: absolute;
+  z-index: 2;
+  left: 43%;
+  top: -2%;
+  width: 14%;
+  height: 73%;
+  border: 3px solid #a65000;
+  border-radius: 18px 18px 4px 4px;
+  background: linear-gradient(90deg, #dc7200, #ffbb05 45%, #f28b00);
+  box-shadow: inset 4px 0 rgba(255,229,89,.34);
+}
+.helmet-band {
+  position: absolute;
+  z-index: 3;
+  left: 2%;
+  right: 2%;
+  bottom: 7%;
+  height: 15%;
+  border: 3px solid #944700;
+  border-radius: 45% 45% 20% 20%;
+  background: linear-gradient(#ffc116, #e57a00);
+}
+.helmet-brim {
+  position: absolute;
+  z-index: 4;
+  left: -6%;
+  right: -6%;
+  bottom: 0;
+  height: 13%;
+  border: 3px solid #844000;
+  border-radius: 50%;
+  background: linear-gradient(180deg, #ffd02b, #ef8d00);
+  box-shadow: 0 5px 6px rgba(0,0,0,.45);
+}
+
+.goggle-strap {
+  position: absolute;
+  z-index: 7;
+  left: 1.5%;
+  right: 1.5%;
+  top: 27%;
+  height: 20%;
+  border-radius: 38%;
+  border: clamp(8px, 1.6vw, 17px) solid #07120c;
+  background: rgba(3,8,5,.62);
+  box-shadow: inset 0 0 0 4px #314032, 0 7px 9px rgba(0,0,0,.6);
+}
+
+.frog-eye {
+  position: absolute;
+  z-index: 10;
+  top: 22.5%;
+  width: 36%;
+  aspect-ratio: 1.08;
+  border-radius: 48% 48% 46% 46%;
+  padding: 4.2%;
+  background: linear-gradient(145deg, #273329, #020504 64%);
+  box-shadow:
+    inset 0 0 0 clamp(3px, .55vw, 6px) #4d5f4f,
+    0 6px 8px rgba(0,0,0,.58);
+}
+.frog-eye--left { left: 9.5%; }
+.frog-eye--right { right: 9.5%; }
+
+.goggle-lens {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  border-radius: 50%;
+  border: clamp(3px, .55vw, 6px) solid #8b4b00;
+  background:
+    radial-gradient(circle at 32% 24%, rgba(255,255,255,.38), transparent 14%),
+    radial-gradient(circle at 50% 55%, #ffc43c, #c46b00 72%);
+  box-shadow: inset 0 0 14px rgba(75,24,0,.75), inset 7px 6px 8px rgba(255,225,107,.28);
+}
+
+.frog-iris {
+  width: 63%;
+  height: 69%;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at 45% 43%, #8b4a0b 0 32%, #5a2800 70%, #241000 100%);
+  box-shadow: inset 0 0 0 3px rgba(31,13,0,.45);
+}
+.frog-pupil {
+  position: relative;
+  width: 58%;
+  height: 68%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 42% 35%, #18200d, #020403 68%);
+  transform: translate3d(var(--eye-x), var(--eye-y), 0);
+  transition: transform .06s linear;
+  box-shadow: 0 0 5px rgba(0,0,0,.8);
+}
+.eye-shine {
+  position: absolute;
+  display: block;
+  border-radius: 50%;
+  background: #fffbe9;
+  box-shadow: 0 0 5px rgba(255,255,255,.75);
+  transform: translate(var(--shine-x), var(--shine-y));
+}
+.eye-shine--large { left: 8%; top: 4%; width: 31%; aspect-ratio: 1; }
+.eye-shine--small { right: 7%; bottom: 16%; width: 13%; aspect-ratio: 1; }
+.goggle-bridge {
+  position: absolute;
+  z-index: 12;
+  left: 43%;
+  top: 33%;
+  width: 14%;
+  height: 5.5%;
+  border-radius: 999px;
+  background: linear-gradient(#354238, #020403);
+  box-shadow: 0 3px 4px rgba(0,0,0,.6);
+}
+
+.frog-muzzle {
+  position: absolute;
+  z-index: 6;
+  left: 6.5%;
+  right: 6.5%;
+  top: 42%;
+  height: 48%;
+  border-radius: 46% 46% 50% 50% / 38% 38% 57% 57%;
+  background:
+    radial-gradient(circle at 35% 24%, rgba(236,255,116,.38), transparent 21%),
+    linear-gradient(145deg, #b6f52c, #76d914 58%, #44ad0c 100%);
+  border: 3px solid rgba(18,104,13,.38);
+  box-shadow: inset -13px -18px 24px rgba(27,94,6,.26), inset 12px 11px 17px rgba(238,255,130,.24);
+}
+.nostril {
+  position: absolute;
+  top: 26%;
+  width: 5.2%;
+  height: 6.2%;
+  border-radius: 50%;
+  background: #073a1c;
+  box-shadow: inset 1px 1px 2px #001d0e;
+}
+.nostril--left { left: 43%; transform: translateX(-100%); }
+.nostril--right { right: 43%; transform: translateX(100%); }
+.frog-smile {
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  top: 48%;
+  height: 27%;
+  border-bottom: clamp(5px, .9vw, 9px) solid #05391a;
+  border-radius: 0 0 50% 50%;
+  filter: drop-shadow(0 2px 0 rgba(210,255,76,.3));
+}
+.smile-corner {
+  position: absolute;
+  top: 59%;
+  width: 5%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #05391a;
+}
+.smile-corner--left { left: 16.8%; }
+.smile-corner--right { right: 16.8%; }
+.frog-belly {
+  position: absolute;
+  z-index: 5;
+  left: 16%;
+  right: 16%;
+  bottom: -3%;
+  height: 22%;
+  border-radius: 50% 50% 44% 44%;
+  background: radial-gradient(ellipse at 50% 20%, #ddff31, #a5e51f 72%);
+  box-shadow: inset 0 8px 14px rgba(255,255,255,.16);
+}
+.sphere-highlight {
+  position: absolute;
+  z-index: 19;
+  left: 9%;
+  top: 18%;
+  width: 14%;
+  height: 38%;
+  border-radius: 50%;
+  background: linear-gradient(180deg, rgba(255,255,255,.30), transparent);
+  filter: blur(7px);
+  transform: rotate(18deg);
+  opacity: .52;
+}
+
+.back-highlight {
+  position: absolute;
+  left: 14%;
+  top: 11%;
+  width: 28%;
+  height: 22%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, rgba(255,255,255,.23), transparent 70%);
+  transform: rotate(-24deg);
+}
+.oracle-socket {
+  position: absolute;
+  left: 17%;
+  top: 17%;
+  width: 66%;
+  aspect-ratio: 1;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle, #07110c 0 56%, #010302 74%);
+  box-shadow:
+    inset 0 0 24px #000,
+    0 0 0 clamp(5px, .9vw, 9px) #06351d,
+    0 0 0 clamp(8px, 1.35vw, 14px) var(--frog-theme),
+    0 0 calc(20px + 25px * var(--energy)) color-mix(in srgb, var(--frog-theme) 55%, transparent);
+}
+.oracle-rim {
+  position: absolute;
+  inset: 8%;
+  border: 2px solid color-mix(in srgb, var(--frog-theme) 70%, #fff 10%);
+  border-radius: 50%;
+  opacity: .6;
+}
+.oracle-triangle {
+  width: 70%;
+  height: 70%;
+  clip-path: polygon(50% 5%, 96% 88%, 4% 88%);
+  background: radial-gradient(circle at 50% 54%, color-mix(in srgb, var(--frog-theme) 55%, #102318), #10291a 73%);
+  filter: drop-shadow(0 0 12px color-mix(in srgb, var(--frog-theme) 55%, transparent));
+  opacity: .92;
+}
+
+.frog-orb.is-shaking .frog-face {
+  box-shadow:
+    inset 22px -28px 44px rgba(0,28,13,.58),
+    inset -18px 20px 32px rgba(215,255,91,.18),
+    0 0 58px color-mix(in srgb, var(--frog-theme) 50%, transparent),
+    0 26px 35px rgba(0,0,0,.58);
+}
+.frog-orb.is-shaking .eye-shine { filter: blur(.35px); }
+.frog-orb.is-revealed .frog-equator { opacity: .55; }
+
+@supports not (color: color-mix(in srgb, red, blue)) {
+  .frog-face { box-shadow: inset 22px -28px 44px rgba(0,28,13,.58), inset -18px 20px 32px rgba(215,255,91,.18), 0 0 32px rgba(170,255,44,.25), 0 26px 35px rgba(0,0,0,.58); }
+  .oracle-socket { box-shadow: inset 0 0 24px #000, 0 0 0 7px #06351d, 0 0 0 12px #aaff2c, 0 0 28px rgba(170,255,44,.35); }
+  .oracle-rim { border-color: #aaff2c; }
+  .oracle-triangle { background: radial-gradient(circle at 50% 54%, #5db72d, #10291a 73%); }
+}

@@ -127,7 +127,7 @@ export class InteractionController {
     if (this.locked || !this.frog.ready) return;
     await this.audio.ensureStarted();
     this.locked = true;
-    this.onStatus("Invisible hands are shaking the 3D frog...");
+    this.onStatus("Invisible hands are shaking the frog oracle...");
     const duration = this.reducedMotion ? 450 : 1150;
     const start = performance.now();
 

@@ -2,9 +2,9 @@
 
 A satirical, interactive frog-oracle website designed for GitHub Pages. The user physically shakes a real-time 3D frog with the mouse or a finger, receives a weighted-rarity verdict, and may encounter an extremely rare FATAL result.
 
-The 3D frog is generated from Three.js geometry at runtime. Its bright green face, construction helmet, orange safety goggles, oversized eyes, nostrils, and smile were designed to resemble the supplied `beetales-avatar.png` without displaying that image as the interactive character.
+The interactive frog is rendered as a browser-native CSS 3D object with separate front and answer faces. Its bright green spherical body, construction helmet, orange safety goggles, oversized eyes, nostrils, and smile were designed to resemble the supplied `beetales-avatar.png` while remaining fully animated and rotatable.
 
-The supplied BeeTales logo and favicon are used directly by the website. The avatar remains included as the visual reference and as a fallback image for browsers that cannot initialize WebGL.
+The supplied BeeTales logo and favicon are used directly by the website. The avatar remains included as the visual reference. The frog itself does not require WebGL, so it remains visible even when the optional Three.js background is unavailable.
 
 ## Features
 
@@ -14,7 +14,7 @@ The supplied BeeTales logo and favicon are used directly by the website. The ava
 - Frog eyes follow the pointer before an answer is revealed
 - Idle floating and breathing animation
 - The frog physically rotates 180 degrees to reveal a Magic-8-Ball-style answer window on its back
-- Three.js atmospheric particle background
+- Optional Three.js atmospheric particle background
 - Mouse, touch, keyboard, and button controls
 - Weighted answer rarity system
 - 95 original English responses
@@ -30,12 +30,13 @@ The supplied BeeTales logo and favicon are used directly by the website. The ava
 - HTML5
 - CSS3
 - Vanilla JavaScript ES modules
-- Three.js stored locally in `js/vendor/` for reliable GitHub Pages loading
-- WebGL
+- CSS 3D transforms for the interactive frog
+- Three.js stored locally in `js/vendor/` for the optional atmospheric background
+- WebGL only for the optional background
 - Web Audio API
 - Web Speech API
 
-The Three.js module is included locally in the repository, so the frog does not depend on a CDN. After the site files are downloaded or deployed, all rendering code, answers, branding assets, effects, and game logic load directly from the project.
+The Three.js module is included locally for the optional background, so the site does not depend on a CDN. The frog is rendered with HTML and CSS 3D transforms and therefore remains visible even when WebGL is disabled. All answers, branding assets, effects, and game logic load directly from the project.
 
 ## Project structure
 
@@ -199,7 +200,7 @@ This project uses relative asset paths and works from a repository subdirectory.
 
 ## Browser notes
 
-The 3D character requires WebGL and JavaScript module support. Current versions of Chrome, Edge, Firefox, and Safari should be used.
+The frog requires CSS 3D transforms and JavaScript module support, which are available in current Chrome, Edge, Firefox, and Safari releases. WebGL is optional and is used only for the atmospheric background; the game and frog remain functional without it.
 
 Web Speech API voice availability and quality vary by browser and operating system. Unsupported speech synthesis disables the voice control without breaking the rest of the page.
 
@@ -209,7 +210,7 @@ Web Audio begins only after user interaction, as required by modern browsers.
 
 All answer selection and game logic run locally in the browser. The project does not collect or transmit personal data and uses no analytics, cookies, camera, microphone, or sensor permissions.
 
-The browser loads Three.js from the local `js/vendor/` directory. The only intentional external navigation is the configurable FATAL redirect.
+The browser loads Three.js from the local `js/vendor/` directory only for the optional background. The frog, interface, answers, audio logic, and interactions run locally. The only intentional external navigation is the configurable FATAL redirect.
 
 ## License
 
