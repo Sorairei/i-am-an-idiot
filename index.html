@@ -56,6 +56,9 @@
       <div id="frog-orb" class="frog-orb is-loading" role="button" tabindex="0"
            aria-label="Three-dimensional frog oracle. Hold and drag quickly left and right to shake, or press Enter or Space.">
         <div id="frog-model" class="frog-model" aria-hidden="true">
+          <div id="sphere-volume" class="sphere-volume" aria-hidden="true"></div>
+          <div class="sphere-shell" aria-hidden="true"></div>
+          <div class="frog-surface-rotator">
           <div class="frog-face frog-front">
             <div class="frog-surface-glow"></div>
             <div class="helmet">
@@ -96,6 +99,7 @@
               <div class="oracle-triangle"></div>
             </div>
           </div>
+          </div>
           <div class="frog-equator"></div>
         </div>
 
@@ -113,7 +117,7 @@
         </div>
 
         <div class="grip-hint" aria-hidden="true"><span></span><span></span><span></span></div>
-        <div class="model-label" aria-hidden="true">LIVE 3D</div>
+        <div class="model-label" aria-hidden="true">SPHERE 3D</div>
       </div>
 
       <div class="energy-panel" aria-hidden="true">
@@ -134,7 +138,7 @@
 
   <footer class="footer">
     <span>A harmless decision simulator. Probably.</span>
-    <span>© <span id="year"></span> The BeeTales</span>
+    <span>© <span id="year"></span> Sorairei · The BeeTales</span>
   </footer>
 
   <div id="aria-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
@@ -149,7 +153,7 @@
         <p><strong>Desktop:</strong> hold the frog and drag rapidly left and right. Release when the meter is full.</p>
         <p><strong>Mobile:</strong> drag the frog quickly with one finger, or use the Shake button.</p>
         <p><strong>Keyboard:</strong> focus the frog and press Enter or Space.</p>
-        <p>Answers range from harmless nonsense to rare moments of actual wisdom. The frog is a browser-rendered 3D object with a rotating front and answer side. The FATAL result is extremely rare and starts a cancellable joke redirect.</p>
+        <p>Answers range from harmless nonsense to rare moments of actual wisdom. The frog is a browser-rendered spherical 3D object with a rotating face and answer window. The FATAL result is extremely rare and starts a cancellable joke redirect.</p>
       </div>
       <button class="primary-button dialog-confirm" value="close">I UNDERSTAND THE RISKS</button>
     </form>

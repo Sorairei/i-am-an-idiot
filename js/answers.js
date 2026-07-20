@@ -36,7 +36,7 @@ export const ANSWERS = Object.freeze([
   { id: "c34", category: "COMMON", text: "You have been cleared of intentional intelligence." },
   { id: "c35", category: "COMMON", text: "The frog believes in you, for tax purposes." },
 
-  // SNARKY — 25
+  // SNARKY — 37
   { id: "n01", category: "SNARKY", text: "You opened this website voluntarily. Let us begin there." },
   { id: "n02", category: "SNARKY", text: "The frog had faith in you. Past tense." },
   { id: "n03", category: "SNARKY", text: "Your brain has entered energy-saving mode." },
@@ -62,8 +62,20 @@ export const ANSWERS = Object.freeze([
   { id: "n23", category: "SNARKY", text: "You did your own research and frightened the research." },
   { id: "n24", category: "SNARKY", text: "Your confidence is doing unpaid overtime." },
   { id: "n25", category: "SNARKY", text: "The frog says congratulations on almost noticing the obvious." },
+  { id: "n26", category: "SNARKY", text: "Your brain saw the warning label and treated it like a challenge." },
+  { id: "n27", category: "SNARKY", text: "You did not miss the point. You launched it into another timezone." },
+  { id: "n28", category: "SNARKY", text: "The frog asked for your reasoning. You submitted a shrug." },
+  { id: "n29", category: "SNARKY", text: "Your brain clicked remind me later on reality." },
+  { id: "n30", category: "SNARKY", text: "Even autocorrect refuses to take responsibility for that decision." },
+  { id: "n31", category: "SNARKY", text: "You are not thinking outside the box. You are arguing with the packaging." },
+  { id: "n32", category: "SNARKY", text: "You make hindsight look like advanced technology." },
+  { id: "n33", category: "SNARKY", text: "Your logic has been discontinued due to lack of demand." },
+  { id: "n34", category: "SNARKY", text: "The frog has seen better planning from a browser with forty pop-ups." },
+  { id: "n35", category: "SNARKY", text: "You entered the maze, ignored the map, and blamed the walls." },
+  { id: "n36", category: "SNARKY", text: "Your common sense is currently listed as missing." },
+  { id: "n37", category: "SNARKY", text: "You are the human version of clicking accept without reading anything." },
 
-  // SAVAGE — 18
+  // SAVAGE — 30
   { id: "s01", category: "SAVAGE", text: "You are the reason instructions include pictures." },
   { id: "s02", category: "SAVAGE", text: "Your strategy has all the structural integrity of wet bread." },
   { id: "s03", category: "SAVAGE", text: "The frog reviewed your choices and requested hazard pay." },
@@ -82,6 +94,18 @@ export const ANSWERS = Object.freeze([
   { id: "s16", category: "SAVAGE", text: "Your decision-making process is an escape room with no exit." },
   { id: "s17", category: "SAVAGE", text: "You have the confidence of a software update at the worst possible time." },
   { id: "s18", category: "SAVAGE", text: "The frog tried lowering the bar. You brought a shovel." },
+  { id: "s19", category: "SAVAGE", text: "You could lose an argument with an automatic door." },
+  { id: "s20", category: "SAVAGE", text: "Your last good idea has filed a missing-person report." },
+  { id: "s21", category: "SAVAGE", text: "The frog found more strategy in a calculator with no batteries." },
+  { id: "s22", category: "SAVAGE", text: "You somehow turned doing nothing into a multi-step failure." },
+  { id: "s23", category: "SAVAGE", text: "Your decision had one job and still requested technical support." },
+  { id: "s24", category: "SAVAGE", text: "You make simple problems feel like season finales." },
+  { id: "s25", category: "SAVAGE", text: "The frog lowered its expectations and heard a basement door open." },
+  { id: "s26", category: "SAVAGE", text: "You have the rare talent of reaching the wrong answer from every direction." },
+  { id: "s27", category: "SAVAGE", text: "Your plan was held together by confidence and one suspicious paper clip." },
+  { id: "s28", category: "SAVAGE", text: "You are what happens when the tutorial is skipped with enthusiasm." },
+  { id: "s29", category: "SAVAGE", text: "The frog tried to follow your logic and needed roadside assistance." },
+  { id: "s30", category: "SAVAGE", text: "You did not just choose the wrong option. You invented a worse one." },
 
   // RARE TRUTH — 12
   { id: "t01", category: "RARE_TRUTH", text: "Making one bad decision does not make you an idiot. Refusing to examine it might. Learn what happened, change the pattern, and continue." },
@@ -97,12 +121,15 @@ export const ANSWERS = Object.freeze([
   { id: "t11", category: "RARE_TRUTH", text: "Confidence without curiosity becomes arrogance. Curiosity without action becomes avoidance. You need a little of both." },
   { id: "t12", category: "RARE_TRUTH", text: "Sometimes the mature response is simply: I did not know, I was wrong, and I will fix what I can." },
 
-  // FATAL — 5
+  // FATAL — 8
   { id: "f01", category: "FATAL", text: "The frog has reached a final conclusion." },
   { id: "f02", category: "FATAL", text: "Your trial period for common sense has expired." },
   { id: "f03", category: "FATAL", text: "The oracle has selected permanent relocation." },
   { id: "f04", category: "FATAL", text: "This result cannot be appealed." },
   { id: "f05", category: "FATAL", text: "Intelligence not found. Removing observer." },
+  { id: "f06", category: "FATAL", text: "The frog reviewed your choices and selected the emergency exit." },
+  { id: "f07", category: "FATAL", text: "Common sense has left the building. You are still inside." },
+  { id: "f08", category: "FATAL", text: "The oracle found no recoverable decision-making data." },
 ]);
 
 export const CATEGORY_LABELS = Object.freeze({

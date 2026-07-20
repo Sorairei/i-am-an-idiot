@@ -2,22 +2,22 @@
 
 A satirical, interactive frog-oracle website designed for GitHub Pages. The user physically shakes a real-time 3D frog with the mouse or a finger, receives a weighted-rarity verdict, and may encounter an extremely rare FATAL result.
 
-The interactive frog is rendered as a browser-native CSS 3D object with separate front and answer faces. Its bright green spherical body, construction helmet, orange safety goggles, oversized eyes, nostrils, and smile were designed to resemble the supplied `beetales-avatar.png` while remaining fully animated and rotatable.
+The interactive frog is rendered as a browser-native CSS 3D sphere made from volumetric depth slices, a shaded shell, and independently rotating front and answer surfaces. Its bright green spherical body, construction helmet, orange safety goggles, oversized eyes, nostrils, and smile were designed to resemble the supplied `beetales-avatar.png` while remaining fully animated and rotatable.
 
 The supplied BeeTales logo and favicon are used directly by the website. The avatar remains included as the visual reference. The frog itself does not require WebGL, so it remains visible even when the optional Three.js background is unavailable.
 
 ## Features
 
-- Real-time 3D BeeTales worker frog constructed from spheres, curves, rings, lights, and materials
+- Volumetric CSS 3D BeeTales worker frog with a permanently spherical silhouette
 - Modeled yellow construction helmet, orange safety lenses, black goggle frame, and animated eyes
 - Actual mouse and touch shaking with rotation, translation, inertia, jitter, and direction-reversal detection
 - Frog eyes follow the pointer before an answer is revealed
 - Idle floating and breathing animation
-- The frog physically rotates 180 degrees to reveal a Magic-8-Ball-style answer window on its back
+- The spherical body stays full while its surface rotates to reveal a Magic-8-Ball-style answer window
 - Optional Three.js atmospheric particle background
 - Mouse, touch, keyboard, and button controls
 - Weighted answer rarity system
-- 95 original English responses
+- 122 original English responses, including sharper SNARKY, SAVAGE, and FATAL verdicts
 - Procedural sound effects through the Web Audio API
 - Optional browser text-to-speech
 - Reduced-motion support
@@ -128,11 +128,11 @@ Keep every `id` unique. Supported categories are:
 Open `js/config.js` and edit `CATEGORY_WEIGHTS`. The values must total exactly 100.
 
 ```js
-COMMON: 50
+COMMON: 49.7
 SNARKY: 28
 SAVAGE: 15
 RARE_TRUTH: 6.8
-FATAL: 0.2
+FATAL: 0.5
 ```
 
 ## Force a result for testing
@@ -171,7 +171,7 @@ The configured redirect is:
 https://replug.link/ccef1e2c
 ```
 
-The redirect occurs only after a user starts the game and receives the 0.2% FATAL result. A visible escape button and the Escape key can cancel it.
+The redirect occurs only after a user starts the game and receives the 0.5% FATAL result. A visible escape button and the Escape key can cancel it.
 
 ## Publish with GitHub Pages
 
@@ -214,4 +214,4 @@ The browser loads Three.js from the local `js/vendor/` directory only for the op
 
 ## License
 
-MIT. The supplied BeeTales branding artwork remains the property of its owner and is included for this specific project.
+MIT. Copyright © 2026 Sorairei. The supplied BeeTales branding artwork remains the property of its owner and is included for this specific project.

@@ -7,6 +7,7 @@ import { EffectsController } from "./effects.js";
 import { AccessibilityController } from "./accessibility.js";
 import { selectResult, validateAnswerInventory } from "./resultEngine.js";
 
+const APP_START = performance.now();
 const $ = selector => document.querySelector(selector);
 
 const elements = {
@@ -91,13 +92,15 @@ async function revealAnswer() {
   document.body.classList.add("is-busy");
   setStatus("The 3D oracle is rotating toward the answer window...");
 
-  await new Promise(resolve => setTimeout(resolve, 380));
+  const revealStart = performance.now();
+  await new Promise(resolve => setTimeout(resolve, 220));
   currentAnswer = selectResult();
   document.body.dataset.theme = currentAnswer.category;
   scene.setTheme(currentAnswer.category);
   frog.reveal(currentAnswer);
 
-  await new Promise(resolve => setTimeout(resolve, 760));
+  await new Promise(resolve => setTimeout(resolve, 610));
+  console.info(`[Benchmark] Verdict visible in ${Math.round(performance.now() - revealStart)} ms.`);
   effects.burst(currentAnswer.category);
   audio.reveal(currentAnswer.category);
   speech.speak(currentAnswer.text, currentAnswer.category);
@@ -166,7 +169,8 @@ async function bootstrap() {
     });
 
     elements.shakeButton.disabled = false;
-    setStatus("Grab the 3D frog and shake it left and right.");
+    setStatus("Grab the spherical frog and shake it left and right.");
+    console.info(`[Benchmark] Interactive oracle ready in ${Math.round(performance.now() - APP_START)} ms.`);
   } catch (error) {
     console.error("The 3D frog could not be initialized.", error);
     elements.orb.classList.remove("is-loading");

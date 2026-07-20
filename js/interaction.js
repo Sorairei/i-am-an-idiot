@@ -128,7 +128,7 @@ export class InteractionController {
     await this.audio.ensureStarted();
     this.locked = true;
     this.onStatus("Invisible hands are shaking the frog oracle...");
-    const duration = this.reducedMotion ? 450 : 1150;
+    const duration = this.reducedMotion ? 360 : 850;
     const start = performance.now();
 
     await new Promise(resolve => {

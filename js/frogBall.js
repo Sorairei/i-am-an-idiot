@@ -14,6 +14,7 @@ export class FrogBall {
     this.answerText = answerText;
     this.answerCategory = answerCategory;
     this.model = orb.querySelector("#frog-model");
+    this.volume = orb.querySelector("#sphere-volume");
 
     this.ready = false;
     this.revealed = false;
@@ -25,10 +26,24 @@ export class FrogBall {
     this.target = { rx: 0, ry: 0, rz: 0, x: 0, y: 0 };
     this.reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
     this.startTime = performance.now();
+    this.resizeFrame = 0;
   }
 
   async init() {
-    if (!this.model) throw new Error("The CSS 3D frog model is missing from index.html.");
+    if (!this.model || !this.volume) {
+      throw new Error("The spherical frog model is missing from index.html.");
+    }
+
+    this.buildSphereVolume();
+    if ("ResizeObserver" in window) {
+      this.resizeObserver = new ResizeObserver(() => {
+        cancelAnimationFrame(this.resizeFrame);
+        this.resizeFrame = requestAnimationFrame(() => this.buildSphereVolume());
+      });
+      this.resizeObserver.observe(this.model);
+    } else {
+      addEventListener("resize", () => this.buildSphereVolume(), { passive: true });
+    }
 
     this.ready = true;
     this.orb.classList.remove("is-loading");
@@ -36,6 +51,34 @@ export class FrogBall {
     this.model.style.visibility = "visible";
     this.animate();
     return true;
+  }
+
+  buildSphereVolume() {
+    const size = this.model.clientWidth;
+    if (!size) return;
+
+    const radius = size * 0.485;
+    const depth = radius * 0.52;
+    const sliceCount = matchMedia("(max-width: 600px)").matches ? 11 : 15;
+    const fragment = document.createDocumentFragment();
+
+    this.volume.replaceChildren();
+    this.model.style.setProperty("--sphere-face-z", `${(depth + 2).toFixed(1)}px`);
+    this.model.style.setProperty("--sphere-depth", `${depth.toFixed(1)}px`);
+
+    for (let index = 0; index < sliceCount; index += 1) {
+      const normalized = -0.92 + (index / (sliceCount - 1)) * 1.84;
+      const scale = Math.sqrt(Math.max(0.06, 1 - normalized * normalized));
+      const slice = document.createElement("span");
+      slice.className = "sphere-slice";
+      slice.style.setProperty("--slice-scale", scale.toFixed(4));
+      slice.style.setProperty("--slice-z", `${(normalized * depth).toFixed(1)}px`);
+      slice.style.setProperty("--slice-brightness", (0.72 + (normalized + 1) * 0.16).toFixed(3));
+      slice.style.setProperty("--slice-opacity", (0.5 + scale * 0.44).toFixed(3));
+      fragment.append(slice);
+    }
+
+    this.volume.append(fragment);
   }
 
   setPointerTilt(normalX, normalY) {
@@ -47,31 +90,30 @@ export class FrogBall {
     this.model.style.setProperty("--shine-y", `${(-this.pointer.y * 3).toFixed(2)}px`);
 
     if (this.revealed || this.shaking) return;
-    this.target.rx = -this.pointer.y * 0.17;
-    this.target.ry = this.pointer.x * 0.23;
-    this.target.rz = -this.pointer.x * 0.035;
+    this.target.rx = -this.pointer.y * 0.12;
+    this.target.ry = this.pointer.x * 0.16;
+    this.target.rz = -this.pointer.x * 0.025;
   }
 
   setDrag(totalDx, totalDy, intensity, deltaX = totalDx, deltaY = totalDy) {
     if (this.revealed) return;
     this.energy = clamp(intensity, 0, 1.2);
-    this.target.x = clamp(totalDx * 0.34, -86, 86);
-    this.target.y = clamp(totalDy * 0.22, -52, 52);
-    this.target.ry += deltaX * 0.015;
-    this.target.rx -= deltaY * 0.011;
-    this.target.rz = clamp(deltaX * -0.0042, -0.24, 0.24);
+    this.target.x = clamp(totalDx * 0.28, -78, 78);
+    this.target.y = clamp(totalDy * 0.18, -42, 42);
+
+    // Keep the outer object spherical. The face no longer turns edge-on like a flat disc.
+    this.target.ry = clamp(totalDx * 0.0023 + deltaX * 0.007, -0.42, 0.42);
+    this.target.rx = clamp(-totalDy * 0.0021 - deltaY * 0.004, -0.28, 0.28);
+    this.target.rz = clamp(deltaX * -0.0036, -0.19, 0.19);
     this.setShaking(intensity > 0.055, intensity);
   }
 
   releaseDrag() {
     this.target.x = 0;
     this.target.y = 0;
+    this.target.rx = 0;
+    this.target.ry = 0;
     this.target.rz = 0;
-    if (!this.revealed) {
-      const nearestTurn = Math.round(this.current.ry / (Math.PI * 2)) * Math.PI * 2;
-      this.target.rx = 0;
-      this.target.ry = nearestTurn;
-    }
     this.setShaking(false, 0);
   }
 
@@ -107,48 +149,47 @@ export class FrogBall {
     this.stage.classList.remove("denied");
     void this.stage.offsetWidth;
     this.stage.classList.add("denied");
-    this.target.rz = -0.13;
-    setTimeout(() => { this.target.rz = 0.13; }, 110);
+    this.target.rz = -0.11;
+    setTimeout(() => { this.target.rz = 0.11; }, 95);
     setTimeout(() => {
       this.target.rz = 0;
       this.stage.classList.remove("denied");
-    }, 420);
+    }, 330);
   }
 
   reveal(answer) {
     this.revealed = true;
     this.setShaking(false, 0);
     this.setTheme(answer.category);
-    this.orb.classList.add("is-settling");
+    this.orb.classList.add("is-settling", "is-turning");
     this.answerCategory.textContent = CATEGORY_LABELS[answer.category];
     this.answerText.textContent = answer.text;
     this.answerText.classList.toggle("is-long", answer.text.length > 96);
     this.answerText.classList.toggle("is-very-long", answer.text.length > 145);
 
-    const fullTurn = Math.round(this.current.ry / (Math.PI * 2)) * Math.PI * 2;
     this.target.x = 0;
     this.target.y = 0;
     this.target.rx = 0;
+    this.target.ry = 0;
     this.target.rz = 0;
-    this.target.ry = fullTurn + Math.PI;
 
     setTimeout(() => {
       this.orb.classList.remove("is-settling");
       this.orb.classList.add("is-revealed");
       this.answerOverlay.setAttribute("aria-hidden", "false");
-    }, this.reducedMotion ? 80 : 720);
+    }, this.reducedMotion ? 60 : 560);
   }
 
   reset() {
     this.revealed = false;
     this.setTheme("IDLE");
-    this.orb.classList.remove("is-revealed", "is-settling", "is-shaking", "is-dragging");
+    this.orb.classList.remove("is-revealed", "is-turning", "is-settling", "is-shaking", "is-dragging");
     this.answerOverlay.setAttribute("aria-hidden", "true");
     this.target.x = 0;
     this.target.y = 0;
     this.target.rx = 0;
     this.target.rz = 0;
-    this.target.ry = Math.ceil(this.current.ry / (Math.PI * 2)) * Math.PI * 2;
+    this.target.ry = 0;
     this.setEnergy(0);
     this.answerCategory.textContent = "THE FROG SAYS";
     this.answerText.textContent = "Shake to reveal your verdict.";
@@ -161,7 +202,7 @@ export class FrogBall {
     if (document.hidden) return;
 
     const elapsed = (now - this.startTime) / 1000;
-    const ease = this.shaking ? 0.3 : (this.revealed ? 0.095 : 0.075);
+    const ease = this.shaking ? 0.31 : (this.revealed ? 0.11 : 0.085);
     this.current.rx = lerp(this.current.rx, this.target.rx, ease);
     this.current.ry = lerp(this.current.ry, this.target.ry, ease);
     this.current.rz = lerp(this.current.rz, this.target.rz, ease);
@@ -174,10 +215,10 @@ export class FrogBall {
     const jitter = this.shaking ? this.shakeIntensity : 0;
     const jitterX = (Math.random() - 0.5) * 8 * jitter;
     const jitterY = (Math.random() - 0.5) * 7 * jitter;
-    const jitterRot = (Math.random() - 0.5) * 0.055 * jitter;
+    const jitterRot = (Math.random() - 0.5) * 0.042 * jitter;
 
-    const rx = this.current.rx + jitterRot;
-    const ry = this.current.ry + jitterRot * 1.4;
+    const rx = clamp(this.current.rx + jitterRot, -0.34, 0.34);
+    const ry = clamp(this.current.ry + jitterRot * 1.15, -0.48, 0.48);
     const rz = this.current.rz - jitterRot;
     const x = this.current.x + jitterX;
     const y = this.current.y + idleBob + jitterY;
