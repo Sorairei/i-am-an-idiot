@@ -5,11 +5,11 @@ export const ENABLE_FATAL_REDIRECT = true;
 export const FATAL_REDIRECT_URL = "https://replug.link/ccef1e2c";
 
 export const CATEGORY_WEIGHTS = Object.freeze({
-  COMMON: 49.7,
+  COMMON: 40.2,
   SNARKY: 28,
   SAVAGE: 15,
   RARE_TRUTH: 6.8,
-  FATAL: 0.5,
+  FATAL: 10,
 });
 
 export const SHAKE_THRESHOLD = 1450;
