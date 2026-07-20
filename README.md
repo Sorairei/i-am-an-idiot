@@ -30,12 +30,12 @@ The supplied BeeTales logo and favicon are used directly by the website. The ava
 - HTML5
 - CSS3
 - Vanilla JavaScript ES modules
-- Three.js loaded from jsDelivr with an UNPKG fallback
+- Three.js stored locally in `js/vendor/` for reliable GitHub Pages loading
 - WebGL
 - Web Audio API
 - Web Speech API
 
-The page needs an internet connection on first load because the Three.js module is loaded from jsDelivr or its UNPKG fallback. All project code, answers, branding assets, effects, and game logic remain inside this repository.
+The Three.js module is included locally in the repository, so the frog does not depend on a CDN. After the site files are downloaded or deployed, all rendering code, answers, branding assets, effects, and game logic load directly from the project.
 
 ## Project structure
 
@@ -58,6 +58,9 @@ am-i-an-idiot/
 │   ├── audio.js
 │   ├── speech.js
 │   ├── threeLoader.js
+│   ├── vendor/
+│   │   ├── three.module.min.js
+│   │   └── THREE-LICENSE.txt
 │   ├── scene.js
 │   ├── frogBall.js
 │   ├── interaction.js
@@ -206,7 +209,7 @@ Web Audio begins only after user interaction, as required by modern browsers.
 
 All answer selection and game logic run locally in the browser. The project does not collect or transmit personal data and uses no analytics, cookies, camera, microphone, or sensor permissions.
 
-The browser requests the Three.js module from jsDelivr, or from UNPKG when the primary CDN is unavailable. The only intentional external navigation is the configurable FATAL redirect.
+The browser loads Three.js from the local `js/vendor/` directory. The only intentional external navigation is the configurable FATAL redirect.
 
 ## License
 

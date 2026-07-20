@@ -95,99 +95,96 @@ export class FrogBall {
 
     const materials = {
       shell: new THREE.MeshPhysicalMaterial({
-        color: 0x78d414,
-        roughness: 0.28,
-        metalness: 0.02,
+        color: 0x59c90d,
+        roughness: 0.24,
+        metalness: 0.01,
         clearcoat: 1,
+        clearcoatRoughness: 0.10,
+      }),
+      shellLight: new THREE.MeshPhysicalMaterial({
+        color: 0xa8ef1f,
+        roughness: 0.29,
+        clearcoat: 0.92,
         clearcoatRoughness: 0.12,
       }),
       shellDark: new THREE.MeshPhysicalMaterial({
-        color: 0x023d20,
-        roughness: 0.34,
-        clearcoat: 0.72,
-        clearcoatRoughness: 0.18,
+        color: 0x063f20,
+        roughness: 0.30,
+        clearcoat: 0.78,
+        clearcoatRoughness: 0.16,
       }),
-      lime: new THREE.MeshPhysicalMaterial({
-        color: 0xa8f31f,
-        roughness: 0.3,
-        clearcoat: 0.9,
-        clearcoatRoughness: 0.15,
-      }),
-      limeSoft: new THREE.MeshPhysicalMaterial({
-        color: 0xcdf42a,
-        roughness: 0.36,
-        clearcoat: 0.72,
-      }),
-      eyeAmber: new THREE.MeshPhysicalMaterial({
-        color: 0xb75d08,
-        roughness: 0.2,
-        clearcoat: 1,
-        clearcoatRoughness: 0.08,
-      }),
-      helmetYellow: new THREE.MeshPhysicalMaterial({
-        color: 0xffb000,
-        roughness: 0.26,
-        metalness: 0.04,
-        clearcoat: 0.94,
-        clearcoatRoughness: 0.12,
-      }),
-      helmetOrange: new THREE.MeshPhysicalMaterial({
-        color: 0xd66a00,
-        roughness: 0.3,
-        metalness: 0.05,
-        clearcoat: 0.82,
-      }),
-      goggleLens: new THREE.MeshPhysicalMaterial({
-        color: 0xff8a00,
-        transparent: true,
-        opacity: 0.46,
-        roughness: 0.08,
-        metalness: 0.02,
-        clearcoat: 1,
-        clearcoatRoughness: 0.03,
-        depthWrite: false,
-        side: THREE.DoubleSide,
-      }),
-      pupil: new THREE.MeshPhysicalMaterial({
-        color: 0x002f18,
+      amber: new THREE.MeshPhysicalMaterial({
+        color: 0xb96709,
         roughness: 0.18,
         clearcoat: 1,
+        clearcoatRoughness: 0.05,
       }),
-      black: new THREE.MeshStandardMaterial({ color: 0x010503, roughness: 0.48 }),
-      white: new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.08, clearcoat: 1 }),
-      glass: new THREE.MeshPhysicalMaterial({
-        color: 0xc8ffb4,
+      helmetYellow: new THREE.MeshPhysicalMaterial({
+        color: 0xffb400,
+        roughness: 0.23,
+        metalness: 0.04,
+        clearcoat: 0.95,
+        clearcoatRoughness: 0.10,
+      }),
+      helmetOrange: new THREE.MeshPhysicalMaterial({
+        color: 0xd96d00,
+        roughness: 0.28,
+        metalness: 0.04,
+        clearcoat: 0.86,
+      }),
+      goggleLens: new THREE.MeshPhysicalMaterial({
+        color: 0xffa20b,
         transparent: true,
-        opacity: 0.075,
+        opacity: 0.28,
         roughness: 0.04,
-        metalness: 0,
         clearcoat: 1,
         clearcoatRoughness: 0.02,
         side: THREE.DoubleSide,
         depthWrite: false,
       }),
+      pupil: new THREE.MeshPhysicalMaterial({
+        color: 0x03170c,
+        roughness: 0.14,
+        clearcoat: 1,
+      }),
+      black: new THREE.MeshStandardMaterial({ color: 0x020403, roughness: 0.42 }),
+      white: new THREE.MeshPhysicalMaterial({ color: 0xffffff, roughness: 0.05, clearcoat: 1 }),
+      glass: new THREE.MeshPhysicalMaterial({
+        color: 0xd9ffc8,
+        transparent: true,
+        opacity: 0.055,
+        roughness: 0.03,
+        clearcoat: 1,
+        clearcoatRoughness: 0.01,
+        side: THREE.DoubleSide,
+        depthWrite: false,
+      }),
     };
 
-    const outerShell = new THREE.Mesh(new THREE.SphereGeometry(2.62, 72, 52), materials.shellDark);
-    outerShell.scale.y = 0.97;
-    this.model.add(outerShell);
+    // The green sphere is deliberately the largest and brightest object. The
+    // previous version allowed the helmet and goggles to dominate the silhouette.
+    const body = new THREE.Mesh(new THREE.SphereGeometry(2.46, 72, 56), materials.shell);
+    body.scale.set(1, 0.98, 0.95);
+    this.model.add(body);
 
-    const frontShell = new THREE.Mesh(
-      new THREE.SphereGeometry(2.635, 72, 42, 0, Math.PI, 0, Math.PI),
-      materials.shell,
-    );
-    frontShell.scale.y = 0.97;
-    this.model.add(frontShell);
+    // Light-green frog muzzle, pushed just in front of the sphere.
+    const muzzle = new THREE.Mesh(new THREE.SphereGeometry(1.92, 64, 42), materials.shellLight);
+    muzzle.position.set(0, -0.38, 2.02);
+    muzzle.scale.set(1.08, 0.73, 0.31);
+    this.model.add(muzzle);
 
-    const glassShell = new THREE.Mesh(new THREE.SphereGeometry(2.68, 72, 52), materials.glass);
-    glassShell.scale.y = 0.97;
-    this.model.add(glassShell);
+    // Subtle lower-belly patch like the supplied BeeTales frog artwork.
+    const belly = new THREE.Mesh(new THREE.SphereGeometry(1.55, 56, 34), materials.shellLight.clone());
+    belly.material.color.setHex(0xc6f326);
+    belly.position.set(0, -1.72, 1.66);
+    belly.scale.set(1.15, 0.36, 0.22);
+    this.model.add(belly);
 
-    const edgeRing = new THREE.Mesh(
-      new THREE.TorusGeometry(2.61, 0.055, 14, 150),
-      new THREE.MeshStandardMaterial({ color: 0x032716, roughness: 0.26, metalness: 0.12 }),
-    );
-    this.model.add(edgeRing);
+    // A thin glossy coat gives the ball a Magic-8-Ball-like finish.
+    const gloss = new THREE.Mesh(new THREE.SphereGeometry(2.50, 72, 56), materials.glass);
+    gloss.scale.set(1, 0.98, 0.95);
+    gloss.renderOrder = 8;
+    this.model.add(gloss);
 
     this.createEyes(materials);
     this.createFaceDetails(materials);
@@ -195,7 +192,7 @@ export class FrogBall {
     this.createAnswerWindow(materials);
     this.createOrbitingSpecks();
 
-    this.model.rotation.set(0.02, 0, 0);
+    this.model.rotation.set(0.015, 0, 0);
   }
 
   createEyes(materials) {
@@ -203,177 +200,146 @@ export class FrogBall {
     this.pupilGroups = [];
 
     for (const side of [-1, 1]) {
-      const eye = new THREE.Group();
-      eye.position.set(side * 1.04, 1.34, 1.92);
+      const eyeRoot = new THREE.Group();
+      eyeRoot.position.set(side * 0.96, 0.98, 1.88);
 
-      const outer = new THREE.Mesh(new THREE.SphereGeometry(0.84, 48, 34), materials.shellDark);
-      outer.scale.z = 0.55;
-      eye.add(outer);
+      // Green raised eye socket: this is what gives the sphere a frog silhouette.
+      const socket = new THREE.Mesh(new THREE.SphereGeometry(0.75, 48, 34), materials.shellDark);
+      socket.scale.set(1.02, 1.02, 0.76);
+      eyeRoot.add(socket);
 
-      const irisBase = new THREE.Mesh(new THREE.SphereGeometry(0.68, 48, 34), materials.eyeAmber);
-      irisBase.position.z = 0.29;
-      irisBase.scale.z = 0.43;
-      eye.add(irisBase);
+      const iris = new THREE.Mesh(new THREE.SphereGeometry(0.56, 44, 30), materials.amber);
+      iris.position.z = 0.53;
+      iris.scale.z = 0.30;
+      eyeRoot.add(iris);
 
       const pupilGroup = new THREE.Group();
-      pupilGroup.position.z = 0.57;
-      const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.34, 40, 28), materials.pupil);
-      pupil.scale.z = 0.32;
+      pupilGroup.position.z = 0.72;
+
+      const pupil = new THREE.Mesh(new THREE.SphereGeometry(0.27, 36, 24), materials.pupil);
+      pupil.scale.z = 0.26;
       pupilGroup.add(pupil);
 
-      const shine = new THREE.Mesh(new THREE.SphereGeometry(0.105, 24, 18), materials.white);
-      shine.position.set(side === -1 ? -0.1 : -0.12, 0.14, 0.3);
+      const shine = new THREE.Mesh(new THREE.SphereGeometry(0.095, 20, 16), materials.white);
+      shine.position.set(-0.09, 0.12, 0.24);
       pupilGroup.add(shine);
 
-      const tinyShine = new THREE.Mesh(new THREE.SphereGeometry(0.04, 18, 14), materials.white);
-      tinyShine.position.set(0.12, -0.08, 0.3);
-      tinyShine.material = materials.white.clone();
-      tinyShine.material.opacity = 0.8;
-      tinyShine.material.transparent = true;
+      const tinyShine = new THREE.Mesh(new THREE.SphereGeometry(0.038, 16, 12), materials.white);
+      tinyShine.position.set(0.11, -0.08, 0.23);
       pupilGroup.add(tinyShine);
 
-      eye.add(pupilGroup);
+      eyeRoot.add(pupilGroup);
       this.pupilGroups.push(pupilGroup);
-      this.model.add(eye);
+      this.model.add(eyeRoot);
     }
   }
 
   createFaceDetails(materials) {
     const THREE = this.THREE;
 
-    const belly = new THREE.Mesh(new THREE.CircleGeometry(1.28, 64), materials.limeSoft);
-    belly.scale.set(1.37, 0.57, 1);
-    belly.position.set(0, -1.46, 2.18);
-    belly.rotation.x = -0.06;
-    this.model.add(belly);
-
-    const cheekMaterial = materials.lime.clone();
-    cheekMaterial.transparent = true;
-    cheekMaterial.opacity = 0.55;
+    // Nostrils are placed on the light muzzle, clearly below the goggles.
     for (const side of [-1, 1]) {
-      const cheek = new THREE.Mesh(new THREE.SphereGeometry(0.42, 30, 22), cheekMaterial);
-      cheek.position.set(side * 1.46, -0.25, 2.08);
-      cheek.scale.set(1.25, 0.7, 0.32);
-      this.model.add(cheek);
-    }
-
-    for (const side of [-1, 1]) {
-      const nostril = new THREE.Mesh(new THREE.SphereGeometry(0.085, 22, 16), materials.pupil);
-      nostril.position.set(side * 0.34, 0.12, 2.61);
-      nostril.scale.set(1, 0.72, 0.5);
+      const nostril = new THREE.Mesh(new THREE.SphereGeometry(0.078, 20, 14), materials.pupil);
+      nostril.position.set(side * 0.30, -0.08, 2.64);
+      nostril.scale.set(1, 0.72, 0.45);
       this.model.add(nostril);
     }
 
+    // Friendly curved frog smile.
     const smileCurve = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(-1.02, -0.42, 2.40),
-      new THREE.Vector3(-0.55, -0.72, 2.50),
-      new THREE.Vector3(0, -0.83, 2.54),
-      new THREE.Vector3(0.55, -0.72, 2.50),
-      new THREE.Vector3(1.02, -0.42, 2.40),
+      new THREE.Vector3(-1.05, -0.57, 2.53),
+      new THREE.Vector3(-0.62, -0.82, 2.63),
+      new THREE.Vector3(0, -0.93, 2.68),
+      new THREE.Vector3(0.62, -0.82, 2.63),
+      new THREE.Vector3(1.05, -0.57, 2.53),
     ]);
-    const smile = new THREE.Mesh(new THREE.TubeGeometry(smileCurve, 48, 0.073, 12, false), materials.pupil);
+    const smile = new THREE.Mesh(new THREE.TubeGeometry(smileCurve, 52, 0.070, 12, false), materials.pupil);
     this.model.add(smile);
 
-    const mouthCornerGeometry = new THREE.SphereGeometry(0.105, 22, 16);
     for (const side of [-1, 1]) {
-      const corner = new THREE.Mesh(mouthCornerGeometry, materials.pupil);
-      corner.position.set(side * 1.04, -0.41, 2.39);
-      corner.scale.set(0.72, 1.15, 0.6);
+      const corner = new THREE.Mesh(new THREE.SphereGeometry(0.10, 20, 14), materials.pupil);
+      corner.position.set(side * 1.06, -0.56, 2.52);
+      corner.scale.set(0.70, 1.08, 0.52);
       this.model.add(corner);
     }
-  }
 
+    // Soft cheek highlights preserve the cute avatar character.
+    const cheekMaterial = materials.shellLight.clone();
+    cheekMaterial.transparent = true;
+    cheekMaterial.opacity = 0.62;
+    for (const side of [-1, 1]) {
+      const cheek = new THREE.Mesh(new THREE.SphereGeometry(0.38, 28, 20), cheekMaterial);
+      cheek.position.set(side * 1.47, -0.32, 2.28);
+      cheek.scale.set(1.18, 0.68, 0.30);
+      this.model.add(cheek);
+    }
+  }
 
   createWorkerGear(materials) {
     const THREE = this.THREE;
     const gear = new THREE.Group();
 
-    // Construction helmet: a compressed upper hemisphere, a thick brim, and raised safety ridges.
+    // Compact construction helmet. It decorates the upper quarter of the frog
+    // instead of covering most of the green sphere.
     const helmetDome = new THREE.Mesh(
-      new THREE.SphereGeometry(1.76, 64, 32, 0, Math.PI * 2, 0, Math.PI / 2),
+      new THREE.SphereGeometry(1.62, 60, 30, 0, Math.PI * 2, 0, Math.PI / 2),
       materials.helmetYellow,
     );
-    helmetDome.position.set(0, 1.82, -0.16);
-    helmetDome.scale.set(1, 0.73, 0.88);
+    helmetDome.position.set(0, 1.64, -0.12);
+    helmetDome.scale.set(1, 0.62, 0.82);
     gear.add(helmetDome);
 
-    const helmetBrim = new THREE.Mesh(
-      new THREE.CylinderGeometry(2.05, 2.18, 0.23, 72, 1, false),
+    const helmetBand = new THREE.Mesh(
+      new THREE.CylinderGeometry(1.72, 1.82, 0.17, 64, 1, false),
       materials.helmetOrange,
     );
-    helmetBrim.position.set(0, 1.79, 0.02);
-    gear.add(helmetBrim);
+    helmetBand.position.set(0, 1.63, 0.02);
+    gear.add(helmetBand);
 
-    const frontVisor = new THREE.Mesh(
-      new THREE.BoxGeometry(3.88, 0.2, 0.54, 12, 2, 4),
-      materials.helmetYellow,
-    );
-    frontVisor.position.set(0, 1.75, 1.92);
-    frontVisor.rotation.x = -0.035;
-    gear.add(frontVisor);
+    const visor = new THREE.Mesh(new THREE.BoxGeometry(3.35, 0.17, 0.47, 10, 2, 3), materials.helmetYellow);
+    visor.position.set(0, 1.58, 1.63);
+    visor.rotation.x = -0.04;
+    gear.add(visor);
 
-    const centerRidge = new THREE.Mesh(
-      new THREE.BoxGeometry(0.34, 1.26, 0.24, 3, 10, 3),
-      materials.helmetOrange,
-    );
-    centerRidge.position.set(0, 2.48, 1.11);
+    const centerRidge = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.88, 0.22, 3, 8, 3), materials.helmetOrange);
+    centerRidge.position.set(0, 2.10, 1.02);
     centerRidge.rotation.x = -0.08;
     gear.add(centerRidge);
 
     for (const side of [-1, 1]) {
-      const sideRidge = new THREE.Mesh(
-        new THREE.BoxGeometry(0.28, 0.42, 0.25, 3, 4, 3),
-        materials.helmetOrange,
-      );
-      sideRidge.position.set(side * 1.16, 2.03, 1.19);
-      sideRidge.rotation.z = side * -0.08;
-      gear.add(sideRidge);
+      const smallRidge = new THREE.Mesh(new THREE.BoxGeometry(0.23, 0.31, 0.20, 3, 3, 3), materials.helmetOrange);
+      smallRidge.position.set(side * 1.05, 1.82, 1.10);
+      gear.add(smallRidge);
     }
 
-    // Safety-goggle strap circles the head behind the two orange lenses.
-    const strap = new THREE.Mesh(
-      new THREE.TorusGeometry(2.19, 0.105, 14, 120),
-      materials.black,
-    );
-    strap.position.y = 1.23;
-    strap.rotation.x = Math.PI / 2;
-    gear.add(strap);
-
+    // Safety goggles hug the eye sockets but leave the green muzzle visible.
     for (const side of [-1, 1]) {
-      const lens = new THREE.Mesh(new THREE.CircleGeometry(0.68, 64), materials.goggleLens);
-      lens.position.set(side * 1.01, 1.27, 2.68);
-      lens.scale.set(1.22, 0.78, 1);
-      lens.renderOrder = 4;
+      const lens = new THREE.Mesh(new THREE.CircleGeometry(0.62, 56), materials.goggleLens);
+      lens.position.set(side * 0.96, 0.98, 2.66);
+      lens.scale.set(1.16, 0.88, 1);
+      lens.renderOrder = 5;
       gear.add(lens);
 
-      const frame = new THREE.Mesh(
-        new THREE.TorusGeometry(0.68, 0.105, 16, 84),
-        materials.black,
-      );
-      frame.position.set(side * 1.01, 1.27, 2.71);
-      frame.scale.set(1.22, 0.78, 1);
-      frame.renderOrder = 5;
+      const frame = new THREE.Mesh(new THREE.TorusGeometry(0.62, 0.085, 14, 72), materials.black);
+      frame.position.set(side * 0.96, 0.98, 2.68);
+      frame.scale.set(1.16, 0.88, 1);
+      frame.renderOrder = 6;
       gear.add(frame);
     }
 
-    const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.58, 0.18, 0.18), materials.black);
-    bridge.position.set(0, 1.27, 2.7);
-    bridge.renderOrder = 5;
+    const bridge = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.14, 0.16), materials.black);
+    bridge.position.set(0, 0.98, 2.68);
+    bridge.renderOrder = 6;
     gear.add(bridge);
 
-    const lowerGoggleCurve = new THREE.CatmullRomCurve3([
-      new THREE.Vector3(-1.9, 0.96, 2.47),
-      new THREE.Vector3(-1.05, 0.82, 2.63),
-      new THREE.Vector3(0, 0.72, 2.67),
-      new THREE.Vector3(1.05, 0.82, 2.63),
-      new THREE.Vector3(1.9, 0.96, 2.47),
-    ]);
-    const lowerGoggleFrame = new THREE.Mesh(
-      new THREE.TubeGeometry(lowerGoggleCurve, 56, 0.075, 10, false),
-      materials.black,
-    );
-    lowerGoggleFrame.renderOrder = 5;
-    gear.add(lowerGoggleFrame);
+    // Short side straps suggest the BeeTales avatar goggles without creating a
+    // large black ring around the whole ball.
+    for (const side of [-1, 1]) {
+      const strap = new THREE.Mesh(new THREE.BoxGeometry(0.52, 0.16, 0.18), materials.black);
+      strap.position.set(side * 1.72, 0.99, 2.18);
+      strap.rotation.y = side * 0.42;
+      gear.add(strap);
+    }
 
     this.model.add(gear);
   }
