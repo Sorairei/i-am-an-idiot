@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#06180d">
+  <meta name="description" content="Shake the frog oracle and discover whether your latest decision was brilliant, questionable, or fatally stupid.">
+  <meta property="og:title" content="Am I an Idiot? — The BeeTales Frog Oracle">
+  <meta property="og:description" content="Shake the frog. Face the truth. Try not to get eliminated.">
+  <meta property="og:type" content="website">
+  <meta property="og:image" content="assets/icons/favicon.png">
+  <title>Am I an Idiot? — The BeeTales Frog Oracle</title>
+  <link rel="icon" href="assets/icons/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" href="assets/icons/favicon.png">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="preconnect" href="https://unpkg.com" crossorigin>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/effects.css">
+  <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body data-theme="IDLE">
+  <canvas id="scene-canvas" aria-hidden="true"></canvas>
+  <div class="noise-layer" aria-hidden="true"></div>
+  <div id="fx-layer" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="The BeeTales home">
+      <img src="assets/images/beetales-logo-v2.png" alt="The BeeTales">
+    </a>
+
+    <nav class="controls" aria-label="Experience controls">
+      <button id="sound-toggle" class="icon-button" type="button" aria-pressed="true" aria-label="Mute sound">
+        <span aria-hidden="true">♪</span><span class="control-label">Sound</span>
+      </button>
+      <button id="voice-toggle" class="icon-button" type="button" aria-pressed="true" aria-label="Disable voice">
+        <span aria-hidden="true">◖</span><span class="control-label">Voice</span>
+      </button>
+      <button id="help-button" class="icon-button" type="button" aria-label="Open instructions">
+        <span aria-hidden="true">?</span><span class="control-label">Help</span>
+      </button>
+    </nav>
+  </header>
+
+  <main class="experience" id="experience">
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow">THE BEETALES PRESENTS</p>
+      <h1 id="page-title">AM I AN IDIOT?</h1>
+      <p id="instruction" class="instruction">Grab the frog, shake it hard, and face the truth.</p>
+    </section>
+
+    <section id="frog-stage" class="frog-stage" aria-label="Interactive frog oracle">
+      <div class="orbit-ring orbit-ring--one" aria-hidden="true"></div>
+      <div class="orbit-ring orbit-ring--two" aria-hidden="true"></div>
+      <div id="frog-shadow" class="frog-shadow" aria-hidden="true"></div>
+
+      <div id="frog-orb" class="frog-orb is-loading" role="button" tabindex="0"
+           aria-label="Three-dimensional frog oracle. Hold and drag quickly left and right to shake, or press Enter or Space.">
+        <canvas id="frog-canvas" class="frog-canvas" aria-hidden="true"></canvas>
+
+        <div id="orb-loading" class="orb-loading" aria-live="polite">
+          <span class="loading-orbit" aria-hidden="true"></span>
+          <strong>BUILDING THE 3D ORACLE</strong>
+        </div>
+
+        <div id="answer-overlay" class="answer-overlay" aria-hidden="true">
+          <div id="answer-window" class="answer-window">
+            <div class="answer-triangle" aria-hidden="true"></div>
+            <p id="answer-category" class="answer-category">THE FROG SAYS</p>
+            <p id="answer-text" class="answer-text">Shake to reveal your verdict.</p>
+          </div>
+        </div>
+
+        <div class="grip-hint" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div class="model-label" aria-hidden="true">LIVE 3D</div>
+      </div>
+
+      <div class="energy-panel" aria-hidden="true">
+        <div class="energy-label"><span>SHAKE ENERGY</span><span id="energy-value">0%</span></div>
+        <div class="energy-track"><div id="energy-fill" class="energy-fill"></div></div>
+      </div>
+    </section>
+
+    <section class="action-panel" aria-label="Oracle actions">
+      <button id="shake-button" class="primary-button" type="button">
+        <span class="button-icon" aria-hidden="true">↔</span>
+        SHAKE THE FROG
+      </button>
+      <button id="again-button" class="secondary-button" type="button" hidden>ASK AGAIN</button>
+      <p id="status-text" class="status-text">Mouse, touch, Enter, or Space</p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>A harmless decision simulator. Probably.</span>
+    <span>© <span id="year"></span> The BeeTales</span>
+  </footer>
+
+  <div id="aria-live" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+
+  <dialog id="help-dialog" class="help-dialog">
+    <form method="dialog">
+      <div class="dialog-header">
+        <h2>How to consult the frog</h2>
+        <button class="dialog-close" value="close" aria-label="Close instructions">×</button>
+      </div>
+      <div class="dialog-content">
+        <p><strong>Desktop:</strong> hold the frog and drag rapidly left and right. Release when the meter is full.</p>
+        <p><strong>Mobile:</strong> drag the frog quickly with one finger, or use the Shake button.</p>
+        <p><strong>Keyboard:</strong> focus the frog and press Enter or Space.</p>
+        <p>Answers range from harmless nonsense to rare moments of actual wisdom. The frog is a real-time 3D model built from geometry. The FATAL result is extremely rare and starts a cancellable joke redirect.</p>
+      </div>
+      <button class="primary-button dialog-confirm" value="close">I UNDERSTAND THE RISKS</button>
+    </form>
+  </dialog>
+
+  <section id="fatal-screen" class="fatal-screen" aria-hidden="true">
+    <div class="fatal-vignette"></div>
+    <div class="fatal-content">
+      <p class="fatal-code">FATAL ERROR</p>
+      <h2 id="fatal-message">The frog has reached a final conclusion.</h2>
+      <p class="fatal-eliminated">YOU HAVE BEEN ELIMINATED BY THE FROG.</p>
+      <p id="fatal-countdown" class="fatal-countdown">Relocating in 3...</p>
+      <button id="fatal-escape" class="fatal-escape" type="button">ESCAPE THIS TERRIBLE FATE</button>
+    </div>
+  </section>
+
+  <noscript>
+    <div class="noscript-message">This frog requires JavaScript to judge you.</div>
+  </noscript>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

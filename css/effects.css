@@ -1,0 +1,127 @@
+body[data-theme="COMMON"] { --theme: #66f4d0; --theme-rgb: 102, 244, 208; }
+body[data-theme="SNARKY"] { --theme: #ffd84f; --theme-rgb: 255, 216, 79; }
+body[data-theme="SAVAGE"] { --theme: #ff7a21; --theme-rgb: 255, 122, 33; }
+body[data-theme="RARE_TRUTH"] { --theme: #d7e9ff; --theme-rgb: 215, 233, 255; }
+body[data-theme="FATAL"] { --theme: #ff2525; --theme-rgb: 255, 37, 37; }
+
+body.is-busy .frog-orb { pointer-events: none; }
+body.is-busy #shake-button { opacity: .42; pointer-events: none; }
+
+.frog-orb.is-shaking {
+  filter: drop-shadow(0 0 40px rgba(var(--theme-rgb), .3)) drop-shadow(0 36px 44px rgba(0,0,0,.68));
+}
+.frog-orb.is-settling { animation: settle .72s cubic-bezier(.2,.7,.1,1); }
+.frog-orb.is-revealed .answer-window { animation: answer-enter .72s .08s both cubic-bezier(.2,.8,.2,1); }
+
+body[data-theme="SNARKY"] .answer-text { font-family: Inter, ui-sans-serif, sans-serif; font-weight: 900; }
+body[data-theme="SAVAGE"] .answer-text { font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif; letter-spacing: .02em; }
+body[data-theme="RARE_TRUTH"] .answer-text { font-family: Georgia, serif; font-weight: 600; }
+body[data-theme="FATAL"] .answer-window { filter: drop-shadow(0 0 13px rgba(255,0,0,.8)); }
+body[data-theme="FATAL"] .answer-triangle { animation: fatal-flicker .18s steps(2) infinite; }
+body[data-theme="FATAL"] .frog-orb { filter: drop-shadow(0 0 45px rgba(255,0,0,.42)) drop-shadow(0 36px 44px rgba(0,0,0,.74)); }
+
+.frog-stage.denied { animation: denied .36s ease; }
+body.screen-impact .experience { animation: screen-impact .42s cubic-bezier(.2,.9,.2,1); }
+body.screen-shake .experience { animation: screen-shake .5s linear; }
+
+.fx-particle {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  background: rgb(var(--theme-rgb));
+  box-shadow: 0 0 14px rgba(var(--theme-rgb), .9);
+  animation: particle-fly var(--duration) ease-out forwards;
+}
+.fx-spark {
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  width: 3px;
+  height: var(--length);
+  transform-origin: 50% 100%;
+  transform: rotate(var(--angle)) translateY(-80px);
+  background: linear-gradient(transparent, rgb(var(--theme-rgb)));
+  filter: drop-shadow(0 0 6px rgb(var(--theme-rgb)));
+  animation: spark-burst .65s ease-out forwards;
+}
+.fx-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 80px;
+  height: 80px;
+  margin: -40px;
+  border: 3px solid rgba(var(--theme-rgb), .72);
+  border-radius: 50%;
+  animation: fx-ring 1s ease-out forwards;
+}
+
+.fatal-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  visibility: hidden;
+  opacity: 0;
+  background: rgba(12,0,0,.84);
+  transition: opacity .35s ease, visibility .35s;
+}
+.fatal-screen.is-active { visibility: visible; opacity: 1; }
+.fatal-vignette {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(circle, transparent 20%, rgba(70,0,0,.38) 62%, rgba(20,0,0,.96) 100%),
+    repeating-linear-gradient(90deg, transparent 0 6%, rgba(220,0,0,.05) 6.2% 6.6%);
+}
+.fatal-vignette::before,
+.fatal-vignette::after {
+  content: "";
+  position: absolute;
+  inset: -15% -10% auto;
+  height: 36%;
+  background: radial-gradient(ellipse at 20% 0%, #ab0000 0 10%, transparent 11%), radial-gradient(ellipse at 50% 0%, #6e0000 0 13%, transparent 14%), radial-gradient(ellipse at 80% 0%, #bd0000 0 9%, transparent 10%);
+  filter: blur(8px);
+  animation: fatal-drip 3.3s ease-in forwards;
+  opacity: .78;
+}
+.fatal-vignette::after { inset: auto -10% -15%; transform: rotate(180deg); animation-delay: .35s; }
+.fatal-content {
+  position: relative;
+  z-index: 3;
+  width: min(760px, calc(100% - 36px));
+  text-align: center;
+  padding: 34px;
+  border: 1px solid rgba(255,52,52,.45);
+  background: rgba(12,0,0,.68);
+  box-shadow: 0 0 70px rgba(255,0,0,.25), inset 0 0 45px rgba(255,0,0,.05);
+  clip-path: polygon(2% 0, 96% 2%, 100% 92%, 95% 100%, 4% 98%, 0 8%);
+  animation: fatal-panel .18s steps(2) infinite;
+}
+.fatal-code { margin: 0; color: #ff2929; font-family: ui-monospace, monospace; font-size: clamp(1rem, 2vw, 1.35rem); font-weight: 900; letter-spacing: .25em; }
+.fatal-content h2 { margin: 18px 0; color: #fff; font-family: Impact, sans-serif; font-size: clamp(2rem, 6vw, 4.8rem); line-height: .98; letter-spacing: .025em; text-shadow: 3px 3px 0 #590000; }
+.fatal-eliminated { color: #ffb2b2; font-weight: 900; letter-spacing: .12em; }
+.fatal-countdown { color: white; font-family: ui-monospace, monospace; font-size: 1.25rem; }
+.fatal-escape { margin-top: 18px; border: 1px solid rgba(255,255,255,.32); border-radius: 999px; padding: 12px 18px; color: #fff; background: rgba(0,0,0,.65); cursor: pointer; font-weight: 800; }
+
+@keyframes settle { 0% { scale: 1; } 35% { scale: .91; } 66% { scale: 1.07; } 100% { scale: 1; } }
+@keyframes answer-enter { from { opacity: 0; transform: scale(.72); filter: blur(8px); } to { opacity: 1; transform: scale(1); filter: blur(0); } }
+@keyframes rim-pulse { 50% { box-shadow: 0 0 0 6px rgba(0,0,0,.78), 0 0 52px rgba(var(--theme-rgb), .58), inset 0 0 45px rgba(var(--theme-rgb), .18); } }
+@keyframes fatal-flicker { 50% { opacity: .58; transform: scale(.985); } }
+@keyframes denied { 25% { transform: translateX(-8px); } 70% { transform: translateX(7px); } }
+@keyframes screen-impact { 20% { transform: scale(1.025); filter: brightness(1.45); } 100% { transform: scale(1); filter: brightness(1); } }
+@keyframes screen-shake { 0%,100% { transform: translate(0); } 20% { transform: translate(-8px, 5px); } 40% { transform: translate(7px,-5px); } 60% { transform: translate(-5px,-3px); } 80% { transform: translate(4px,4px); } }
+@keyframes particle-fly { to { transform: translate(var(--dx), var(--dy)) scale(0); opacity: 0; } }
+@keyframes spark-burst { from { opacity: 1; scale: .3; } to { opacity: 0; scale: 1.5; } }
+@keyframes fx-ring { to { width: 800px; height: 800px; margin: -400px; opacity: 0; } }
+@keyframes fatal-drip { from { transform: translateY(-40%); } to { transform: translateY(65%); } }
+@keyframes fatal-panel { 50% { transform: translate(1px,-1px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+}
