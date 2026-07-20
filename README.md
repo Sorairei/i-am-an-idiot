@@ -2,13 +2,16 @@
 
 A satirical interactive frog oracle designed for GitHub Pages. Shake the spherical BeeTales frog with a mouse or finger, receive a weighted-rarity verdict, and try not to encounter the rare FATAL result.
 
-The frog is a genuine WebGL sphere built with Three.js `SphereGeometry(1, 64, 48)`. The supplied BeeTales avatar is cleaned and composited directly into an equirectangular texture mapped onto the same curved surface. `MeshStandardMaterial`, ambient light, point lights, and a rear oracle socket provide real volume from every viewing angle.
+The frog is a genuine WebGL sphere built with Three.js `SphereGeometry(1, 64, 48)`. The BeeTales artwork is mapped onto the curved surface, while both eyes are separate Three.js objects with their own pupils, highlights, blinking, micro-movements, and reactions.
 
 ## Features
 
-- True Three.js `SphereGeometry` BeeTales frog with 64×48 segments, curved avatar texture, lighting, highlights, and shadow
+- True Three.js `SphereGeometry` frog with 64×48 segments
+- Independent animated 3D eyes that follow the mouse or touch movement
+- Natural blinking, occasional double blinks, idle eye movements, and playful side-eye reactions
+- Eyes react to shaking, failed attempts, and answer categories
+- The sphere turns back toward the player during pointer interaction
 - Mouse and touch shaking with direction reversal, velocity scoring, inertia, jitter, and pointer capture
-- Eyes that follow the pointer
 - Magic-8-Ball-style rotating answer window
 - Lightweight Canvas 2D particles, parallax, and orbital atmosphere
 - Mouse, touch, keyboard, and fallback-button controls
@@ -25,12 +28,12 @@ The frog is a genuine WebGL sphere built with Three.js `SphereGeometry(1, 64, 48
 - HTML5
 - CSS3
 - Vanilla JavaScript ES modules
-- Three.js r166 included locally as a pinned ES module for the interactive `SphereGeometry`
+- Three.js r166 included locally as a pinned ES module
 - Canvas 2D for the atmospheric background
 - Web Audio API
 - Web Speech API
 
-The project uses no framework, npm installation, build process, or server-side component. Three.js r166 is included inside `js/vendor/`, so the site does not depend on a CDN and can be published directly through GitHub Pages.
+The project uses no framework, npm installation, build process, CDN, or server-side component. It can be published directly through GitHub Pages.
 
 ## Project structure
 
@@ -67,6 +70,7 @@ am-i-an-idiot/
 └── assets/
     ├── images/
     │   ├── beetales-avatar.webp
+    │   ├── beetales-avatar-eye-base.webp
     │   ├── beetales-logo-v2.webp
     │   └── beetales-logo-v2.png
     └── icons/
@@ -99,6 +103,21 @@ Hold the frog and drag rapidly left and right with one finger. Pointer capture k
 
 Focus the frog and press Enter or Space, or select **SHAKE THE FROG**. The fallback button performs the complete animated shake.
 
+## Eye personality system
+
+The face texture no longer contains static pupils. The pupils, irises, highlights, and eye bulges are separate Three.js objects attached to the curved sphere.
+
+The eye system includes:
+
+- Pointer and touch tracking
+- Smooth interpolation instead of instant jumps
+- Random idle micro-saccades
+- Automatic and occasional double blinking
+- A brief annoyed side-eye after an insufficient shake
+- Extra jitter and widened pupils while shaking
+- Category-specific expressions for COMMON, SNARKY, SAVAGE, RARE_TRUTH, and FATAL
+- A red FATAL pupil glow before the sphere turns to the answer window
+
 ## Edit answers
 
 Open `js/answers.js`. Each entry follows this structure:
@@ -107,15 +126,7 @@ Open `js/answers.js`. Each entry follows this structure:
 { id: "c01", category: "COMMON", text: "Probably, but the evidence is still loading." }
 ```
 
-Supported categories:
-
-- `COMMON`
-- `SNARKY`
-- `SAVAGE`
-- `RARE_TRUTH`
-- `FATAL`
-
-Keep each answer ID unique.
+Supported categories: `COMMON`, `SNARKY`, `SAVAGE`, `RARE_TRUTH`, and `FATAL`. Keep each answer ID unique.
 
 ## Change probabilities
 
@@ -151,58 +162,28 @@ Return it to `null` before publishing.
 
 ## Test FATAL without leaving the page
 
-Use:
-
 ```js
 export const DEV_FORCE_RESULT = "FATAL";
 export const ENABLE_FATAL_REDIRECT = false;
 ```
 
-The complete effect and countdown will run, but the browser will remain on the site. Return the settings to:
+The complete effect and countdown will run, but the browser will remain on the site. Restore `DEV_FORCE_RESULT` to `null` and `ENABLE_FATAL_REDIRECT` to `true` before publishing.
 
-```js
-export const DEV_FORCE_RESULT = null;
-export const ENABLE_FATAL_REDIRECT = true;
-```
-
-The configured redirect is:
-
-```text
-https://replug.link/ccef1e2c
-```
-
-A visible escape button and the Escape key can cancel the redirect.
+The configured redirect is `https://replug.link/ccef1e2c`. A visible escape button and the Escape key can cancel it.
 
 ## Performance diagnostics
 
-Append `?perf=1` to the site URL:
-
-```text
-https://username.github.io/repository/?perf=1
-```
-
-The optional overlay shows:
-
-- FPS
-- P95 frame duration
-- Pointer-to-frame latency
-- Long-task count and duration
-- JavaScript heap usage when supported
-- DOM-node count
-
-The monitor is dynamically imported and is not downloaded during normal gameplay. Benchmark methodology and before/after results are documented in `AUDIT.md`.
+Append `?perf=1` to the deployed URL. The optional overlay shows FPS, P95 frame duration, pointer-to-frame latency, long tasks, heap usage when supported, and DOM-node count. The monitor is dynamically imported and adds no cost during normal gameplay.
 
 ## Publish with GitHub Pages
 
-1. Create a GitHub repository.
-2. Upload the contents of this project.
-3. Open the repository's **Settings**.
-4. Select **Pages**.
-5. Under **Build and deployment**, select **Deploy from a branch**.
-6. Select the `main` branch and `/ (root)`.
-7. Save and open the generated GitHub Pages URL after deployment finishes.
+1. Upload the project contents to a repository.
+2. Open **Settings → Pages**.
+3. Select **Deploy from a branch**.
+4. Select `main` and `/ (root)`.
+5. Save and open the generated URL after deployment finishes.
 
-All project paths are relative, so the site works inside a GitHub Pages repository subdirectory. GitHub Actions are not required.
+All paths are relative, so the site works inside a GitHub Pages repository subdirectory. GitHub Actions are not required.
 
 ## Accessibility
 
@@ -217,11 +198,7 @@ All project paths are relative, so the site works inside a GitHub Pages reposito
 
 ## Browser notes
 
-Current Chrome, Edge, Firefox, and Safari releases support the required JavaScript modules, Canvas 2D, and WebGL. WebGL is required for the true geometric sphere; a static BeeTales image is shown only as a graceful fallback when WebGL initialization fails.
-
-Web Speech API voice availability and quality vary by browser and operating system. If speech synthesis is unsupported, the voice control is disabled without affecting the game.
-
-The audio graph is prepared silently before controls are enabled, but playback and resume occur only in response to user interaction. No audio autoplays on page load.
+Current Chrome, Edge, Firefox, and Safari releases support the required modules, Canvas 2D, and WebGL. WebGL is required for the geometric sphere and animated eyes. Web Speech API voice availability varies by browser and operating system.
 
 ## Privacy
 

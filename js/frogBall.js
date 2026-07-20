@@ -54,7 +54,27 @@ export class FrogBall {
     // A full, slow Y-axis turn proves the object is spherical. It pauses while
     // the player shakes it and while the back answer window is being revealed.
     this.autoYaw = 0;
-    this.autoSpinSpeed = this.reducedMotion ? 0 : 0.145;
+    this.autoSpinSpeed = this.reducedMotion ? 0 : 0.075;
+
+    // Personality state. The eyes are independent 3D objects rather than a
+    // baked section of the sphere texture, so they can track the pointer,
+    // blink, squint, react to shaking, and briefly return the face toward the
+    // player when interaction begins.
+    const now = performance.now();
+    this.pointerEngagedUntil = 0;
+    this.eyeLook = { x: 0, y: 0 };
+    this.eyeLookTarget = { x: 0, y: 0 };
+    this.eyeMicro = { x: 0, y: 0 };
+    this.eyeMicroTarget = { x: 0, y: 0 };
+    this.nextSaccadeAt = now + 900 + Math.random() * 1300;
+    this.blinking = false;
+    this.blinkStart = 0;
+    this.blinkDuration = 150;
+    this.pendingExtraBlink = 0;
+    this.nextBlinkAt = now + 1800 + Math.random() * 2800;
+    this.eyeExpression = { squint: 0, pupilScale: 1, biasX: 0, biasY: 0 };
+    this.eyeReaction = null;
+    this.eyes = [];
   }
 
   async init() {
@@ -75,6 +95,10 @@ export class FrogBall {
     } else {
       addEventListener("resize", () => this.resize(), { passive: true });
     }
+
+    this.orb.addEventListener("pointerenter", () => {
+      this.pointerEngagedUntil = performance.now() + 1800;
+    }, { passive: true });
 
     this.ready = true;
     this.orb.classList.remove("is-loading");
@@ -137,7 +161,7 @@ export class FrogBall {
     // silhouette smooth on large desktop displays and close side views.
     this.sphereGeometry = new THREE.SphereGeometry(1, 64, 48);
 
-    const avatarUrl = new URL("../assets/images/beetales-avatar.webp", import.meta.url).href;
+    const avatarUrl = new URL("../assets/images/beetales-avatar-eye-base.webp", import.meta.url).href;
     const avatar = await this.loadImage(avatarUrl);
     this.sphereTexture = this.createSphereTexture(avatar);
 
@@ -154,6 +178,7 @@ export class FrogBall {
     this.baseSphere.renderOrder = 1;
     this.frogGroup.add(this.baseSphere);
 
+    this.createAnimatedEyes();
     this.createAnswerWindow();
   }
 
@@ -215,7 +240,9 @@ export class FrogBall {
       ctx.fill();
     }
 
-    const cleanAvatar = this.cleanAvatarComponent(image);
+    // The supplied mascot was pre-cleaned into a transparent derivative with
+    // neutral lens wells. Animated Three.js eyes are layered above those wells.
+    const cleanAvatar = image;
 
     // Three.js SphereGeometry faces +Z at U ≈ 0.25. The avatar is centred at
     // that longitude and kept well away from V=0/V=1, so the face, helmet and
@@ -243,68 +270,277 @@ export class FrogBall {
     return texture;
   }
 
-  cleanAvatarComponent(image) {
-    // Crop around the connected mascot component, removing the isolated edge
-    // pixels present in the supplied transparent reference image.
-    const sourceX = Math.round(image.naturalWidth * 0.2265);
-    const sourceY = Math.round(image.naturalHeight * 0.047);
-    const sourceWidth = Math.round(image.naturalWidth * 0.547);
-    const sourceHeight = Math.round(image.naturalHeight * 0.843);
+  createAnimatedEyes() {
+    this.eyeRoot = new THREE.Group();
+    this.eyeRoot.name = "Animated frog eyes";
+    this.eyeRoot.renderOrder = 8;
+    this.frogGroup.add(this.eyeRoot);
 
-    const canvas = document.createElement("canvas");
-    canvas.width = sourceWidth;
-    canvas.height = sourceHeight;
-    const ctx = canvas.getContext("2d", { willReadFrequently: true });
-    if (!ctx) throw new Error("The browser could not prepare the supplied frog avatar.");
-    ctx.drawImage(image, sourceX, sourceY, sourceWidth, sourceHeight, 0, 0, sourceWidth, sourceHeight);
+    this.eyeMaterials = {
+      bulge: new THREE.MeshPhongMaterial({
+        color: 0x6d2904,
+        emissive: 0x160400,
+        emissiveIntensity: 0.16,
+        shininess: 72,
+        specular: 0xb86819,
+      }),
+      iris: new THREE.MeshPhongMaterial({
+        color: 0x8b3a07,
+        emissive: 0x1c0500,
+        emissiveIntensity: 0.12,
+        shininess: 58,
+        specular: 0xb55d18,
+      }),
+      irisRing: new THREE.MeshStandardMaterial({
+        color: 0x351000,
+        roughness: 0.34,
+        metalness: 0.04,
+      }),
+      pupil: new THREE.MeshStandardMaterial({
+        color: 0x070502,
+        roughness: 0.14,
+        metalness: 0.02,
+        emissive: 0x000000,
+        emissiveIntensity: 0,
+      }),
+      highlight: new THREE.MeshBasicMaterial({ color: 0xffffff, toneMapped: false }),
+      rim: new THREE.MeshStandardMaterial({
+        color: 0x160b02,
+        roughness: 0.22,
+        metalness: 0.18,
+      }),
+      blinkLine: new THREE.MeshBasicMaterial({
+        color: 0x120801,
+        transparent: true,
+        opacity: 0,
+        depthWrite: false,
+        toneMapped: false,
+      }),
+    };
 
-    const pixels = ctx.getImageData(0, 0, sourceWidth, sourceHeight);
-    const data = pixels.data;
-    const total = sourceWidth * sourceHeight;
-    const keep = new Uint8Array(total);
-    const stack = new Int32Array(total);
-    let stackSize = 0;
+    this.eyeGeometries = {
+      back: new THREE.CircleGeometry(0.158, 40),
+      bulge: new THREE.SphereGeometry(0.145, 36, 24),
+      iris: new THREE.CircleGeometry(0.106, 40),
+      irisRing: new THREE.TorusGeometry(0.088, 0.009, 10, 40),
+      pupil: new THREE.CircleGeometry(0.063, 36),
+      largeHighlight: new THREE.CircleGeometry(0.025, 24),
+      smallHighlight: new THREE.CircleGeometry(0.011, 20),
+      blinkLine: new THREE.PlaneGeometry(0.245, 0.014),
+    };
 
-    const centerX = Math.floor(sourceWidth * 0.5);
-    const centerY = Math.floor(sourceHeight * 0.54);
-    let seed = centerY * sourceWidth + centerX;
-
-    if (data[seed * 4 + 3] < 20) {
-      outer: for (let radius = 1; radius < 70; radius += 1) {
-        for (let y = Math.max(0, centerY - radius); y <= Math.min(sourceHeight - 1, centerY + radius); y += 1) {
-          for (let x = Math.max(0, centerX - radius); x <= Math.min(sourceWidth - 1, centerX + radius); x += 1) {
-            const index = y * sourceWidth + x;
-            if (data[index * 4 + 3] >= 20) {
-              seed = index;
-              break outer;
-            }
-          }
-        }
-      }
+    const eyeDefinitions = [
+      { side: -1, longitude: -0.555, latitude: -0.015 },
+      { side: 1, longitude: 0.555, latitude: -0.015 },
+    ];
+    for (const definition of eyeDefinitions) {
+      this.eyes.push(this.createEye(definition));
     }
-
-    keep[seed] = 1;
-    stack[stackSize++] = seed;
-    while (stackSize) {
-      const index = stack[--stackSize];
-      const x = index % sourceWidth;
-      const neighbours = [index - 1, index + 1, index - sourceWidth, index + sourceWidth];
-      for (const next of neighbours) {
-        if (next < 0 || next >= total || keep[next]) continue;
-        const nextX = next % sourceWidth;
-        if (Math.abs(nextX - x) > 1) continue;
-        if (data[next * 4 + 3] < 12) continue;
-        keep[next] = 1;
-        stack[stackSize++] = next;
-      }
-    }
-
-    for (let index = 0; index < total; index += 1) {
-      if (!keep[index]) data[index * 4 + 3] = 0;
-    }
-    ctx.putImageData(pixels, 0, 0);
-    return canvas;
   }
+
+  createEye({ side, longitude, latitude }) {
+    const normal = new THREE.Vector3(
+      Math.sin(longitude) * Math.cos(latitude),
+      Math.sin(latitude),
+      Math.cos(longitude) * Math.cos(latitude),
+    ).normalize();
+
+    const anchor = new THREE.Group();
+    anchor.name = side < 0 ? "Left animated eye" : "Right animated eye";
+    anchor.position.copy(normal).multiplyScalar(1.006);
+    anchor.quaternion.setFromUnitVectors(new THREE.Vector3(0, 0, 1), normal);
+    this.eyeRoot.add(anchor);
+
+    const visual = new THREE.Group();
+    visual.position.z = 0.008;
+    anchor.add(visual);
+
+    const darkBack = new THREE.Mesh(
+      this.eyeGeometries.back,
+      this.eyeMaterials.rim,
+    );
+    darkBack.position.z = 0.002;
+    visual.add(darkBack);
+
+    const bulge = new THREE.Mesh(
+      this.eyeGeometries.bulge,
+      this.eyeMaterials.bulge,
+    );
+    bulge.scale.z = 0.24;
+    bulge.position.z = 0.027;
+    visual.add(bulge);
+
+    const pupilGroup = new THREE.Group();
+    pupilGroup.position.z = 0.067;
+    visual.add(pupilGroup);
+
+    const iris = new THREE.Mesh(
+      this.eyeGeometries.iris,
+      this.eyeMaterials.iris,
+    );
+    pupilGroup.add(iris);
+
+    const irisRing = new THREE.Mesh(
+      this.eyeGeometries.irisRing,
+      this.eyeMaterials.irisRing,
+    );
+    irisRing.position.z = 0.004;
+    pupilGroup.add(irisRing);
+
+    const pupil = new THREE.Mesh(
+      this.eyeGeometries.pupil,
+      this.eyeMaterials.pupil,
+    );
+    pupil.position.z = 0.008;
+    pupilGroup.add(pupil);
+
+    const largeHighlight = new THREE.Mesh(
+      this.eyeGeometries.largeHighlight,
+      this.eyeMaterials.highlight,
+    );
+    largeHighlight.position.set(-0.034, 0.038, 0.013);
+    pupilGroup.add(largeHighlight);
+
+    const smallHighlight = new THREE.Mesh(
+      this.eyeGeometries.smallHighlight,
+      this.eyeMaterials.highlight,
+    );
+    smallHighlight.position.set(0.021, 0.016, 0.014);
+    pupilGroup.add(smallHighlight);
+
+    const blinkLineMaterial = this.eyeMaterials.blinkLine.clone();
+    const blinkLine = new THREE.Mesh(
+      this.eyeGeometries.blinkLine,
+      blinkLineMaterial,
+    );
+    blinkLine.position.z = 0.085;
+    blinkLine.visible = false;
+    anchor.add(blinkLine);
+
+    return {
+      side,
+      anchor,
+      visual,
+      pupilGroup,
+      pupil,
+      bulge,
+      blinkLine,
+      blinkLineMaterial,
+    };
+  }
+
+  forceBlink(doubleBlink = false) {
+    if (this.revealed) return;
+    this.nextBlinkAt = performance.now();
+    if (doubleBlink) this.pendingExtraBlink = Math.max(this.pendingExtraBlink, 1);
+  }
+
+  updateBlink(now) {
+    if (this.reducedMotion || this.revealed) return 0;
+
+    if (!this.blinking && now >= this.nextBlinkAt) {
+      this.blinking = true;
+      this.blinkStart = now;
+      this.blinkDuration = 125 + Math.random() * 45;
+      if (!this.pendingExtraBlink && Math.random() < 0.22) this.pendingExtraBlink = 1;
+    }
+
+    if (!this.blinking) return 0;
+    const progress = (now - this.blinkStart) / this.blinkDuration;
+    if (progress >= 1) {
+      this.blinking = false;
+      if (this.pendingExtraBlink > 0) {
+        this.pendingExtraBlink -= 1;
+        this.nextBlinkAt = now + 85;
+      } else {
+        this.nextBlinkAt = now + 2500 + Math.random() * 3900;
+      }
+      return 0;
+    }
+    return Math.sin(progress * Math.PI);
+  }
+
+  setEyeExpression(category = "IDLE") {
+    const expressions = {
+      IDLE: { squint: 0, pupilScale: 1, biasX: 0, biasY: 0 },
+      COMMON: { squint: 0.02, pupilScale: 1.02, biasX: 0, biasY: 0 },
+      SNARKY: { squint: 0.12, pupilScale: 0.94, biasX: 0.025, biasY: 0.006 },
+      SAVAGE: { squint: 0.23, pupilScale: 0.82, biasX: -0.018, biasY: -0.008 },
+      RARE_TRUTH: { squint: 0, pupilScale: 1.08, biasX: 0, biasY: 0.012 },
+      FATAL: { squint: 0.08, pupilScale: 0.48, biasX: 0, biasY: 0 },
+    };
+    this.eyeExpression = expressions[category] || expressions.IDLE;
+
+    if (this.eyeMaterials?.pupil) {
+      if (category === "FATAL") {
+        this.eyeMaterials.pupil.color.setHex(0x180000);
+        this.eyeMaterials.pupil.emissive.setHex(0xff0000);
+        this.eyeMaterials.pupil.emissiveIntensity = 0.72;
+      } else {
+        this.eyeMaterials.pupil.color.setHex(0x070502);
+        this.eyeMaterials.pupil.emissive.setHex(0x000000);
+        this.eyeMaterials.pupil.emissiveIntensity = 0;
+      }
+    }
+  }
+
+  updateEyes(now, deltaSeconds) {
+    if (!this.eyes.length) return;
+
+    const pointerActive = now < this.pointerEngagedUntil;
+    if (!pointerActive && !this.shaking && now >= this.nextSaccadeAt) {
+      this.eyeMicroTarget.x = (Math.random() - 0.5) * 0.026;
+      this.eyeMicroTarget.y = (Math.random() - 0.5) * 0.018;
+      this.nextSaccadeAt = now + 900 + Math.random() * 2200;
+    }
+
+    const microEase = 1 - Math.exp(-5.5 * deltaSeconds);
+    this.eyeMicro.x = lerp(this.eyeMicro.x, pointerActive ? 0 : this.eyeMicroTarget.x, microEase);
+    this.eyeMicro.y = lerp(this.eyeMicro.y, pointerActive ? 0 : this.eyeMicroTarget.y, microEase);
+
+    const reaction = this.eyeReaction && now < this.eyeReaction.until ? this.eyeReaction : null;
+    if (this.eyeReaction && !reaction) this.eyeReaction = null;
+
+    let targetX = this.eyeLookTarget.x + this.eyeMicro.x + this.eyeExpression.biasX;
+    let targetY = this.eyeLookTarget.y + this.eyeMicro.y + this.eyeExpression.biasY;
+    let squint = this.eyeExpression.squint;
+    let pupilScale = this.eyeExpression.pupilScale;
+
+    if (reaction) {
+      targetX += reaction.biasX || 0;
+      targetY += reaction.biasY || 0;
+      squint = Math.max(squint, reaction.squint || 0);
+      pupilScale *= reaction.pupilScale || 1;
+    }
+
+    if (this.shaking) {
+      targetX += (Math.random() - 0.5) * 0.025 * this.shakeIntensity;
+      targetY += (Math.random() - 0.5) * 0.018 * this.shakeIntensity;
+      pupilScale *= 1 + this.shakeIntensity * 0.12;
+      squint += this.shakeIntensity * 0.06;
+    }
+
+    const lookEase = 1 - Math.exp(-(this.shaking ? 18 : 10) * deltaSeconds);
+    this.eyeLook.x = lerp(this.eyeLook.x, clamp(targetX, -0.052, 0.052), lookEase);
+    this.eyeLook.y = lerp(this.eyeLook.y, clamp(targetY, -0.041, 0.041), lookEase);
+
+    const blinkAmount = this.updateBlink(now);
+    const openScale = clamp(1 - blinkAmount * 0.94 - squint, 0.075, 1.08);
+    const lineOpacity = clamp((blinkAmount - 0.55) * 2.3, 0, 0.9);
+
+    for (const eye of this.eyes) {
+      // A tiny inward bias gives the pair a friendly focus instead of making
+      // the pupils appear to diverge at close range.
+      const convergence = -eye.side * 0.004;
+      eye.pupilGroup.position.x = clamp(this.eyeLook.x + convergence, -0.054, 0.054);
+      eye.pupilGroup.position.y = clamp(this.eyeLook.y, -0.043, 0.043);
+      eye.pupilGroup.scale.setScalar(pupilScale);
+      eye.visual.scale.y = openScale;
+      eye.blinkLine.visible = lineOpacity > 0.02;
+      eye.blinkLineMaterial.opacity = lineOpacity;
+    }
+  }
+
 
   createAnswerWindow() {
     this.answerGroup = new THREE.Group();
@@ -330,7 +566,7 @@ export class FrogBall {
       roughness: 0.29,
       metalness: 0.16,
       emissive: THEME_COLORS.IDLE,
-      emissiveIntensity: 0.18,
+      emissiveIntensity: 0.12,
     });
     const rim = new THREE.Mesh(new THREE.TorusGeometry(0.61, 0.055, 18, 72), this.answerRimMaterial);
     rim.position.z = 0.025;
@@ -387,6 +623,9 @@ export class FrogBall {
     if (Math.abs(nextX - this.pointer.x) < 0.002 && Math.abs(nextY - this.pointer.y) < 0.002) return;
     this.pointer.x = nextX;
     this.pointer.y = nextY;
+    this.pointerEngagedUntil = performance.now() + 1500;
+    this.eyeLookTarget.x = nextX * 0.047;
+    this.eyeLookTarget.y = -nextY * 0.036;
 
     if (this.revealed || this.shaking) return;
     this.target.rx = -nextY * 0.12;
@@ -402,6 +641,9 @@ export class FrogBall {
     this.target.ry = clamp(totalDx * 0.0025 + deltaX * 0.008, -0.72, 0.72);
     this.target.rx = clamp(-totalDy * 0.0022 - deltaY * 0.004, -0.36, 0.36);
     this.target.rz = clamp(deltaX * -0.0038, -0.23, 0.23);
+    this.pointerEngagedUntil = performance.now() + 320;
+    this.eyeLookTarget.x = clamp(-deltaX * 0.0019, -0.052, 0.052);
+    this.eyeLookTarget.y = clamp(deltaY * 0.0015, -0.038, 0.038);
     this.setShaking(intensity > 0.055, intensity);
   }
 
@@ -411,6 +653,8 @@ export class FrogBall {
     this.target.rx = 0;
     this.target.ry = 0;
     this.target.rz = 0;
+    this.eyeLookTarget.x = 0;
+    this.eyeLookTarget.y = 0;
     this.setShaking(false, 0);
   }
 
@@ -441,12 +685,20 @@ export class FrogBall {
     this.answerRimMaterial?.emissive.copy(color);
     this.triangleMaterial?.emissive.copy(color);
     if (this.triangleMaterial) this.triangleMaterial.color.copy(color).multiplyScalar(0.52);
+    this.setEyeExpression(category);
   }
 
   deny() {
     this.stage.classList.remove("denied");
     void this.stage.offsetWidth;
     this.stage.classList.add("denied");
+    this.eyeReaction = {
+      until: performance.now() + 720,
+      squint: 0.28,
+      biasX: Math.random() < 0.5 ? -0.042 : 0.042,
+      pupilScale: 0.9,
+    };
+    this.forceBlink(true);
     this.target.rz = -0.12;
     setTimeout(() => { this.target.rz = 0.12; }, 95);
     setTimeout(() => {
@@ -505,6 +757,11 @@ export class FrogBall {
     this.answerCategory.textContent = "THE FROG SAYS";
     this.answerText.textContent = "Shake to reveal your verdict.";
     this.answerText.classList.remove("is-long", "is-very-long");
+    this.setEyeExpression("IDLE");
+    this.eyeLookTarget.x = 0;
+    this.eyeLookTarget.y = 0;
+    this.eyeReaction = null;
+    this.nextBlinkAt = performance.now() + 900 + Math.random() * 1800;
   }
 
   animate = now => {
@@ -516,8 +773,17 @@ export class FrogBall {
     const deltaSeconds = Math.min(0.08, Math.max(0.001, (now - this.previousAnimationTime) / 1000));
     this.previousAnimationTime = now;
 
+    const pointerActive = now < this.pointerEngagedUntil;
     if (!this.shaking && !this.revealed && this.autoSpinSpeed > 0) {
-      this.autoYaw = (this.autoYaw + this.autoSpinSpeed * deltaSeconds) % TWO_PI;
+      if (pointerActive) {
+        // Turn the mascot back toward the player when they approach it. The
+        // continuous idle turn resumes after interaction stops.
+        const frontDelta = Math.atan2(Math.sin(-this.autoYaw), Math.cos(-this.autoYaw));
+        const faceEase = 1 - Math.exp(-4.4 * deltaSeconds);
+        this.autoYaw += frontDelta * faceEase;
+      } else {
+        this.autoYaw = (this.autoYaw + this.autoSpinSpeed * deltaSeconds) % TWO_PI;
+      }
     }
 
     const dampingSpeed = this.shaking ? 22 : (this.revealed ? 13 : 5.6);
@@ -542,12 +808,13 @@ export class FrogBall {
     this.frogGroup.rotation.y = this.autoYaw + this.current.ry + jitterRot * 1.15;
     this.frogGroup.rotation.z = this.current.rz - jitterRot;
     this.frogGroup.scale.setScalar(breathing + jitter * 0.007);
+    this.updateEyes(now, deltaSeconds);
 
     // Render at 30 FPS while idle and at 60 FPS during direct interaction or
     // result rotation. The full geometric sphere remains smooth without keeping
     // mobile GPUs at maximum load when nobody is touching the page.
     const rotatingToResult = this.revealed && Math.abs(this.target.ry - this.current.ry) > 0.008;
-    const active = this.shaking || rotatingToResult;
+    const active = this.shaking || rotatingToResult || pointerActive || this.blinking || Boolean(this.eyeReaction);
     const interval = active ? 1000 / 60 : 1000 / 30;
     if (now - this.lastFrame >= interval) {
       this.lastFrame = now;
