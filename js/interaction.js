@@ -19,6 +19,10 @@ export class InteractionController {
     this.lastHorizontalDirection = 0;
     this.reversals = 0;
     this.reducedMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    this.hoverFrame = 0;
+    this.dragFrame = 0;
+    this.pendingHover = null;
+    this.pendingDrag = null;
     this.bind();
   }
 
@@ -36,21 +40,39 @@ export class InteractionController {
       }
     });
 
+    // High-polling-rate mice can produce hundreds of events per second. Keep
+    // the latest position and update visual CSS only once per rendered frame.
     addEventListener("pointermove", event => {
-      const x = (event.clientX / innerWidth) * 2 - 1;
-      const y = (event.clientY / innerHeight) * 2 - 1;
-      this.scene.setPointer(x, y);
-      if (!this.dragging && !this.locked) this.frog.setPointerTilt(x, y);
+      this.pendingHover = {
+        x: (event.clientX / innerWidth) * 2 - 1,
+        y: (event.clientY / innerHeight) * 2 - 1,
+      };
+      if (!this.hoverFrame) this.hoverFrame = requestAnimationFrame(this.flushHover);
     }, { passive: true });
   }
 
-  pointerDown = async event => {
+  flushHover = () => {
+    this.hoverFrame = 0;
+    if (!this.pendingHover) return;
+    const { x, y } = this.pendingHover;
+    this.pendingHover = null;
+    this.scene.setPointer(x, y);
+    if (!this.dragging && !this.locked) this.frog.setPointerTilt(x, y);
+  };
+
+  pointerDown = event => {
     if (this.locked || !this.frog.ready) return;
     event.preventDefault();
-    await this.audio.ensureStarted();
+
+    // Do not block the first frame while the browser creates/resumes its audio
+    // context. The frog must react instantly even on slower mobile devices.
+    this.audio.ensureStarted().catch(() => {});
+
     this.dragging = true;
     this.lastPoint = { x: event.clientX, y: event.clientY };
     this.origin = { ...this.lastPoint };
+    this.lastVisualX = event.clientX;
+    this.lastVisualY = event.clientY;
     this.lastMoveTime = performance.now();
     this.lastHorizontalDirection = 0;
     this.reversals = 0;
@@ -63,50 +85,73 @@ export class InteractionController {
     if (!this.dragging || this.locked || !this.lastPoint) return;
     event.preventDefault();
 
-    const now = performance.now();
-    const dx = event.clientX - this.lastPoint.x;
-    const dy = event.clientY - this.lastPoint.y;
-    const distance = Math.hypot(dx, dy);
-    const elapsed = Math.max(8, now - this.lastMoveTime);
-    const velocity = Math.min(5, distance / elapsed);
+    const samples = event.getCoalescedEvents?.() || [event];
+    for (const sample of samples) this.scoreMovement(sample);
 
+    this.pendingDrag = {
+      totalDx: event.clientX - this.origin.x,
+      totalDy: event.clientY - this.origin.y,
+      ratio: this.energy / SHAKE_THRESHOLD,
+      dx: event.clientX - this.lastVisualX,
+      dy: event.clientY - this.lastVisualY,
+    };
+    this.lastVisualX = event.clientX;
+    this.lastVisualY = event.clientY;
+    if (!this.dragFrame) this.dragFrame = requestAnimationFrame(this.flushDragVisual);
+  };
+
+  scoreMovement(sample) {
+    const now = performance.now();
+    const dx = sample.clientX - this.lastPoint.x;
+    const dy = sample.clientY - this.lastPoint.y;
+    const distance = Math.hypot(dx, dy);
+    if (distance < 0.25) return;
+
+    const elapsed = Math.max(4, now - this.lastMoveTime);
+    const velocity = Math.min(5.5, distance / elapsed);
     const horizontalDirection = Math.abs(dx) > 2 ? Math.sign(dx) : 0;
+
     if (horizontalDirection && this.lastHorizontalDirection && horizontalDirection !== this.lastHorizontalDirection) {
       this.reversals += 1;
     }
     if (horizontalDirection) this.lastHorizontalDirection = horizontalDirection;
 
     const horizontalRatio = Math.abs(dx) / Math.max(1, Math.abs(dx) + Math.abs(dy));
-    const directionQuality = 0.45 + horizontalRatio * 0.9;
-    const reversalBonus = Math.min(1.8, 1 + this.reversals * 0.075);
-    const movementScore = distance * (0.35 + velocity * 0.82) * directionQuality * reversalBonus;
+    const directionQuality = 0.48 + horizontalRatio * 0.94;
+    const reversalBonus = Math.min(1.9, 1 + this.reversals * 0.08);
+    const movementScore = distance * (0.38 + velocity * 0.86) * directionQuality * reversalBonus;
 
     this.energy = Math.min(SHAKE_THRESHOLD * 1.16, this.energy + movementScore);
-    const ratio = this.energy / SHAKE_THRESHOLD;
-    this.frog.setEnergy(ratio);
-    this.frog.setDrag(
-      event.clientX - this.origin.x,
-      event.clientY - this.origin.y,
-      ratio,
-      dx,
-      dy,
-    );
-    this.scene.setShake(ratio);
-    this.audio.rattle(ratio);
-
-    this.lastPoint = { x: event.clientX, y: event.clientY };
+    this.audio.rattle(this.energy / SHAKE_THRESHOLD);
+    this.lastPoint = { x: sample.clientX, y: sample.clientY };
     this.lastMoveTime = now;
+  }
+
+  flushDragVisual = () => {
+    this.dragFrame = 0;
+    if (!this.pendingDrag || !this.dragging) return;
+    const { totalDx, totalDy, ratio, dx, dy } = this.pendingDrag;
+    this.pendingDrag = null;
+    this.frog.setEnergy(ratio);
+    this.frog.setDrag(totalDx, totalDy, ratio, dx, dy);
+    this.scene.setShake(ratio);
   };
 
   pointerUp = async event => {
     if (!this.dragging) return;
     this.dragging = false;
     this.orb.classList.remove("is-dragging");
+    cancelAnimationFrame(this.dragFrame);
+    this.dragFrame = 0;
+    this.pendingDrag = null;
+
     try {
       if (this.orb.hasPointerCapture?.(event.pointerId)) this.orb.releasePointerCapture(event.pointerId);
     } catch {
       // Pointer capture can already be released by the browser.
     }
+
+    this.frog.setEnergy(this.energy / SHAKE_THRESHOLD);
     this.frog.releaseDrag();
     this.scene.setShake(0);
 
@@ -125,10 +170,10 @@ export class InteractionController {
 
   async buttonShake() {
     if (this.locked || !this.frog.ready) return;
-    await this.audio.ensureStarted();
+    this.audio.ensureStarted().catch(() => {});
     this.locked = true;
     this.onStatus("Invisible hands are shaking the frog oracle...");
-    const duration = this.reducedMotion ? 360 : 850;
+    const duration = this.reducedMotion ? 300 : 700;
     const start = performance.now();
 
     await new Promise(resolve => {
@@ -168,8 +213,13 @@ export class InteractionController {
     this.locked = false;
     this.lastPoint = null;
     this.origin = null;
+    this.lastVisualX = 0;
+    this.lastVisualY = 0;
     this.lastHorizontalDirection = 0;
     this.reversals = 0;
+    this.pendingDrag = null;
+    cancelAnimationFrame(this.dragFrame);
+    this.dragFrame = 0;
     this.orb.classList.remove("is-dragging");
     this.scene.setShake(0);
     this.frog.setEnergy(0);

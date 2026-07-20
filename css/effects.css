@@ -10,8 +10,8 @@ body.is-busy #shake-button { opacity: .42; pointer-events: none; }
 .frog-orb.is-shaking {
   filter: drop-shadow(0 0 40px rgba(var(--theme-rgb), .3)) drop-shadow(0 36px 44px rgba(0,0,0,.68));
 }
-.frog-orb.is-settling { animation: settle .72s cubic-bezier(.2,.7,.1,1); }
-.frog-orb.is-revealed .answer-window { animation: answer-enter .72s .08s both cubic-bezier(.2,.8,.2,1); }
+.frog-orb.is-settling { animation: settle .56s cubic-bezier(.2,.7,.1,1); }
+.frog-orb.is-revealed .answer-window { animation: answer-enter .58s .05s both cubic-bezier(.2,.8,.2,1); }
 
 body[data-theme="SNARKY"] .answer-text { font-family: Inter, ui-sans-serif, sans-serif; font-weight: 900; }
 body[data-theme="SAVAGE"] .answer-text { font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif; letter-spacing: .02em; }

@@ -12,7 +12,6 @@ const $ = selector => document.querySelector(selector);
 
 const elements = {
   canvas: $("#scene-canvas"),
-  frogCanvas: $("#frog-canvas"),
   orb: $("#frog-orb"),
   stage: $("#frog-stage"),
   shadow: $("#frog-shadow"),
@@ -93,13 +92,13 @@ async function revealAnswer() {
   setStatus("The 3D oracle is rotating toward the answer window...");
 
   const revealStart = performance.now();
-  await new Promise(resolve => setTimeout(resolve, 220));
+  await new Promise(resolve => setTimeout(resolve, 100));
   currentAnswer = selectResult();
   document.body.dataset.theme = currentAnswer.category;
   scene.setTheme(currentAnswer.category);
   frog.reveal(currentAnswer);
 
-  await new Promise(resolve => setTimeout(resolve, 610));
+  await new Promise(resolve => setTimeout(resolve, 470));
   console.info(`[Benchmark] Verdict visible in ${Math.round(performance.now() - revealStart)} ms.`);
   effects.burst(currentAnswer.category);
   audio.reveal(currentAnswer.category);
@@ -157,6 +156,10 @@ async function bootstrap() {
     const [frogResult] = await Promise.allSettled([frog.init(), scene.init()]);
     if (frogResult.status === "rejected") throw frogResult.reason;
 
+    // Create the suspended audio graph before enabling interaction. This moves
+    // the one-time browser audio setup out of the player's first shake.
+    audio.prewarm();
+
     interaction = new InteractionController({
       orb: elements.orb,
       stage: elements.stage,
@@ -170,6 +173,7 @@ async function bootstrap() {
 
     elements.shakeButton.disabled = false;
     setStatus("Grab the spherical frog and shake it left and right.");
+    performance.mark("oracle-interactive");
     console.info(`[Benchmark] Interactive oracle ready in ${Math.round(performance.now() - APP_START)} ms.`);
   } catch (error) {
     console.error("The 3D frog could not be initialized.", error);
@@ -191,3 +195,12 @@ try {
 
 bindReplay();
 bootstrap();
+
+// Append ?perf=1 to the URL to display live FPS, frame pacing, input latency,
+// long-task and memory measurements. The diagnostic module is not downloaded
+// during normal gameplay.
+if (new URLSearchParams(location.search).get("perf") === "1") {
+  import("./performanceMonitor.js")
+    .then(({ startPerformanceMonitor }) => startPerformanceMonitor())
+    .catch(error => console.warn("Performance monitor unavailable.", error));
+}

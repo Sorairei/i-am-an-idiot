@@ -12,8 +12,6 @@
   <title>Am I an Idiot? — The BeeTales Frog Oracle</title>
   <link rel="icon" href="assets/icons/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" href="assets/icons/favicon.png">
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-  <link rel="preconnect" href="https://unpkg.com" crossorigin>
   <link rel="stylesheet" href="css/styles.css">
   <link rel="stylesheet" href="css/effects.css">
   <link rel="stylesheet" href="css/responsive.css">
@@ -25,7 +23,10 @@
 
   <header class="topbar">
     <a class="brand" href="./" aria-label="The BeeTales home">
-      <img src="assets/images/beetales-logo-v2.png" alt="The BeeTales">
+      <picture>
+        <source srcset="assets/images/beetales-logo-v2.webp" type="image/webp">
+        <img src="assets/images/beetales-logo-v2.png" width="720" height="214" alt="The BeeTales" decoding="async">
+      </picture>
     </a>
 
     <nav class="controls" aria-label="Experience controls">

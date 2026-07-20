@@ -1,0 +1,76 @@
+{
+  "methodology": {
+    "browser": "Chromium 144",
+    "rendering": "Headless software-rendered test environment",
+    "desktopViewport": "1440x900",
+    "mobileViewport": "390x844, DPR 2",
+    "cpuThrottle": "1x and 4x",
+    "note": "Absolute FPS is affected by headless throttling. Relative V5-to-V6 comparisons were collected under identical conditions. V5 WebGL initialization failed in this lab, so its real browser rendering cost is conservatively underrepresented."
+  },
+  "v5": {
+    "desktop-1x": {
+      "interactiveReadyMs": 866.5,
+      "buttonToRevealMs": 2012.8,
+      "heapUsedMB": 8.19,
+      "scriptDurationMs": 274.7,
+      "taskDurationMs": 2080.1,
+      "longTasks": { "count": 10, "totalMs": 1189 },
+      "idleFps": 8.012,
+      "actionFps": 7.338
+    },
+    "desktop-4x": {
+      "interactiveReadyMs": 1679.6,
+      "buttonToRevealMs": 1888.6,
+      "heapUsedMB": 8.15,
+      "scriptDurationMs": 588.0,
+      "taskDurationMs": 2990.5,
+      "longTasks": { "count": 7, "totalMs": 717 },
+      "pointerToFrameP95Ms": 5.9,
+      "idleFps": 7.829,
+      "actionFps": 5.865
+    },
+    "mobile-4x": {
+      "interactiveReadyMs": 1589.8,
+      "buttonToRevealMs": 1749.9,
+      "heapUsedMB": 8.30,
+      "scriptDurationMs": 636.4,
+      "taskDurationMs": 2500.7,
+      "longTasks": { "count": 1, "totalMs": 50 },
+      "idleFps": 22.12,
+      "actionFps": 15.001
+    }
+  },
+  "v6": {
+    "desktop-1x": {
+      "interactiveReadyMs": 590.9,
+      "buttonToRevealMs": 1348.1,
+      "heapUsedMB": 3.37,
+      "scriptDurationMs": 50.1,
+      "taskDurationMs": 754.7,
+      "longTasks": { "count": 0, "totalMs": 0 },
+      "idleFps": 12.001,
+      "actionFps": 10.304
+    },
+    "desktop-4x": {
+      "interactiveReadyMs": 1065.1,
+      "buttonToRevealMs": 1534.6,
+      "heapUsedMB": 3.23,
+      "scriptDurationMs": 218.9,
+      "taskDurationMs": 1330.1,
+      "longTasks": { "count": 0, "totalMs": 0 },
+      "pointerToFrameP95Ms": 5.1,
+      "idleFps": 12.066,
+      "actionFps": 7.179
+    },
+    "mobile-4x": {
+      "interactiveReadyMs": 647.4,
+      "buttonToRevealMs": 1427.7,
+      "heapUsedMB": 2.96,
+      "scriptDurationMs": 275.1,
+      "taskDurationMs": 1775.4,
+      "longTasks": { "count": 1, "totalMs": 57 },
+      "idleFps": 30.423,
+      "actionFps": 17.946
+    }
+  }
+}

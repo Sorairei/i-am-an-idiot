@@ -12,7 +12,7 @@ export const CATEGORY_WEIGHTS = Object.freeze({
   FATAL: 0.5,
 });
 
-export const SHAKE_THRESHOLD = 1650;
+export const SHAKE_THRESHOLD = 1450;
 export const HISTORY_SIZE = 5;
 export const FATAL_COUNTDOWN_SECONDS = 3;
 export const SPEECH_STORAGE_KEY = "beetales-idiot-voice";

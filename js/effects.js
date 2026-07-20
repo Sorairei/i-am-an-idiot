@@ -20,7 +20,11 @@ export class EffectsController {
 
   burst(category) {
     this.clear();
-    const count = this.reducedMotion ? 8 : ({ COMMON: 18, SNARKY: 24, SAVAGE: 38, RARE_TRUTH: 26, FATAL: 45 }[category] || 18);
+    const isSmallScreen = matchMedia("(max-width: 700px)").matches;
+    const baseCount = ({ COMMON: 18, SNARKY: 24, SAVAGE: 34, RARE_TRUTH: 24, FATAL: 40 }[category] || 18);
+    const count = this.reducedMotion ? 8 : Math.round(baseCount * (isSmallScreen ? 0.72 : 1));
+    const fragment = document.createDocumentFragment();
+
     for (let i = 0; i < count; i += 1) {
       const particle = document.createElement("i");
       particle.className = "fx-particle";
@@ -32,23 +36,26 @@ export class EffectsController {
       particle.style.setProperty("--dx", `${Math.cos(angle) * distance}px`);
       particle.style.setProperty("--dy", `${Math.sin(angle) * distance}px`);
       particle.style.setProperty("--duration", `${.55 + Math.random() * .85}s`);
-      this.layer.append(particle);
+      fragment.append(particle);
     }
 
     const ring = document.createElement("i");
     ring.className = "fx-ring";
-    this.layer.append(ring);
+    fragment.append(ring);
 
     if (category === "SNARKY" || category === "SAVAGE" || category === "FATAL") {
-      const sparks = this.reducedMotion ? 5 : category === "FATAL" ? 32 : 18;
+      const baseSparks = category === "FATAL" ? 28 : 16;
+      const sparks = this.reducedMotion ? 5 : Math.round(baseSparks * (isSmallScreen ? 0.72 : 1));
       for (let i = 0; i < sparks; i += 1) {
         const spark = document.createElement("i");
         spark.className = "fx-spark";
         spark.style.setProperty("--angle", `${Math.random() * 360}deg`);
         spark.style.setProperty("--length", `${50 + Math.random() * 120}px`);
-        this.layer.append(spark);
+        fragment.append(spark);
       }
     }
+
+    this.layer.append(fragment);
 
     const impactClass = category === "SAVAGE" || category === "FATAL" ? "screen-shake" : "screen-impact";
     document.body.classList.add(impactClass);

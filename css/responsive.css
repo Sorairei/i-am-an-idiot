@@ -46,3 +46,13 @@
   .action-panel { align-content: center; }
   .status-text { max-width: 180px; }
 }
+
+/* V6 performance safeguards: preserve the visual design while reducing
+   expensive blur and shadow rasterization on smaller displays. */
+@media (max-width: 700px) {
+  .noise-layer { opacity: 0.055; }
+  .frog-orb { filter: drop-shadow(0 24px 30px rgba(0,0,0,.58)); }
+  .sphere-highlight { filter: blur(5px); }
+  .frog-shadow { filter: blur(12px); }
+  .icon-button { backdrop-filter: blur(7px); }
+}

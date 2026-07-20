@@ -88,6 +88,7 @@ button:focus-visible, [tabindex]:focus-visible, a:focus-visible {
 
 .brand, .controls { pointer-events: auto; }
 .brand { display: inline-flex; align-items: center; }
+.brand picture { display: contents; }
 .brand img {
   display: block;
   width: clamp(190px, 23vw, 350px);
@@ -354,7 +355,7 @@ button:focus-visible, [tabindex]:focus-visible, a:focus-visible {
 }
 .energy-label { display: flex; justify-content: space-between; font-size: .62rem; font-weight: 900; letter-spacing: .14em; color: var(--muted); }
 .energy-track { margin-top: 7px; height: 7px; border-radius: 99px; overflow: hidden; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.08); }
-.energy-fill { width: 0%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #4eab1e, var(--lime), #ffe56c); box-shadow: 0 0 14px rgba(170,255,44,.55); transition: width .08s linear; }
+.energy-fill { width: 100%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #4eab1e, var(--lime), #ffe56c); box-shadow: 0 0 14px rgba(170,255,44,.55); transform: scaleX(0); transform-origin: left center; transition: transform .06s linear; will-change: transform; }
 
 .action-panel {
   z-index: 10;
@@ -452,7 +453,7 @@ button:focus-visible, [tabindex]:focus-visible, a:focus-visible {
 .frog-orb.webgl-failed {
   background:
     radial-gradient(circle at 50% 50%, rgba(170,255,44,.12), transparent 62%),
-    url("../assets/images/beetales-avatar.png") center / 88% auto no-repeat,
+    url("../assets/images/beetales-avatar.webp") center / 88% auto no-repeat,
     radial-gradient(circle, #0d4d28, #00140a 72%);
   border: 2px solid rgba(170,255,44,.26);
 }
@@ -866,7 +867,6 @@ button:focus-visible, [tabindex]:focus-visible, a:focus-visible {
   box-shadow:
     inset 18px -22px 32px rgba(0,27,13,.33),
     inset -12px 16px 22px rgba(227,255,118,.12);
-  filter: brightness(var(--slice-brightness));
   backface-visibility: visible;
 }
 
@@ -909,7 +909,7 @@ button:focus-visible, [tabindex]:focus-visible, a:focus-visible {
 
 .frog-surface-rotator {
   z-index: 4;
-  transition: transform .58s cubic-bezier(.2,.78,.18,1);
+  transition: transform .48s cubic-bezier(.2,.78,.18,1);
   transform: rotateY(0deg);
   will-change: transform;
 }
@@ -958,11 +958,42 @@ button:focus-visible, [tabindex]:focus-visible, a:focus-visible {
 }
 
 .frog-orb.is-turning .sphere-shell {
-  animation: sphere-answer-pulse .58s ease;
+  animation: sphere-answer-pulse .48s ease;
 }
 
 @keyframes sphere-answer-pulse {
   0% { filter: brightness(1); }
   45% { filter: brightness(1.22) saturate(1.15); }
   100% { filter: brightness(1); }
+}
+
+/* Optional diagnostics, loaded only when the URL contains ?perf=1. */
+.performance-panel {
+  position: fixed;
+  z-index: 90;
+  right: max(12px, env(safe-area-inset-right));
+  bottom: max(12px, env(safe-area-inset-bottom));
+  display: grid;
+  gap: 5px;
+  min-width: 190px;
+  padding: 12px 14px;
+  color: #eaffda;
+  border: 1px solid rgba(170,255,44,.42);
+  border-radius: 12px;
+  background: rgba(0,12,6,.92);
+  box-shadow: 0 12px 34px rgba(0,0,0,.55);
+  font: 700 11px/1.35 ui-monospace, SFMono-Regular, Consolas, monospace;
+  letter-spacing: .04em;
+}
+.performance-panel strong { color: var(--lime); letter-spacing: .14em; }
+.performance-panel span { white-space: nowrap; }
+.performance-panel button {
+  margin-top: 5px;
+  padding: 5px 8px;
+  color: var(--cream);
+  border: 1px solid rgba(170,255,44,.35);
+  border-radius: 7px;
+  background: #092315;
+  cursor: pointer;
+  font: inherit;
 }

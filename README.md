@@ -1,51 +1,47 @@
 # Am I an Idiot? — The BeeTales Frog Oracle
 
-A satirical, interactive frog-oracle website designed for GitHub Pages. The user physically shakes a real-time 3D frog with the mouse or a finger, receives a weighted-rarity verdict, and may encounter an extremely rare FATAL result.
+A satirical interactive frog oracle designed for GitHub Pages. Shake the spherical BeeTales frog with a mouse or finger, receive a weighted-rarity verdict, and try not to encounter the rare FATAL result.
 
-The interactive frog is rendered as a browser-native CSS 3D sphere made from volumetric depth slices, a shaded shell, and independently rotating front and answer surfaces. Its bright green spherical body, construction helmet, orange safety goggles, oversized eyes, nostrils, and smile were designed to resemble the supplied `beetales-avatar.png` while remaining fully animated and rotatable.
-
-The supplied BeeTales logo and favicon are used directly by the website. The avatar remains included as the visual reference. The frog itself does not require WebGL, so it remains visible even when the optional Three.js background is unavailable.
+The frog is a browser-native CSS 3D sphere with volumetric depth, a construction helmet, orange safety goggles, animated eyes, and independently rotating front and answer surfaces. Its design is based on the supplied BeeTales avatar while remaining fully interactive rather than using the reference image as a flat sprite.
 
 ## Features
 
-- Volumetric CSS 3D BeeTales worker frog with a permanently spherical silhouette
-- Modeled yellow construction helmet, orange safety lenses, black goggle frame, and animated eyes
-- Actual mouse and touch shaking with rotation, translation, inertia, jitter, and direction-reversal detection
-- Frog eyes follow the pointer before an answer is revealed
-- Idle floating and breathing animation
-- The spherical body stays full while its surface rotates to reveal a Magic-8-Ball-style answer window
-- Optional Three.js atmospheric particle background
-- Mouse, touch, keyboard, and button controls
-- Weighted answer rarity system
-- 122 original English responses, including sharper SNARKY, SAVAGE, and FATAL verdicts
-- Procedural sound effects through the Web Audio API
+- Spherical CSS 3D BeeTales frog with helmet, goggles, face, depth, highlights, and shadow
+- Mouse and touch shaking with direction reversal, velocity scoring, inertia, jitter, and pointer capture
+- Eyes that follow the pointer
+- Magic-8-Ball-style rotating answer window
+- Lightweight Canvas 2D particles, parallax, and orbital atmosphere
+- Mouse, touch, keyboard, and fallback-button controls
+- 122 original English answers across five weighted categories
+- FATAL probability of 0.5%, with cancellable countdown and configurable joke redirect
+- Generated sound effects through the Web Audio API
 - Optional browser text-to-speech
-- Reduced-motion support
-- Cancellable FATAL countdown and configurable redirect
-- No database, cookies, analytics, microphone, camera, or motion permission
-- No build step, npm, or GitHub Actions
+- Reduced-motion and mobile-performance adaptations
+- Optional live performance overlay
+- No database, analytics, cookies, camera, microphone, paid API, build process, or GitHub Actions
 
 ## Technology
 
 - HTML5
-- CSS3
+- CSS3 and CSS 3D transforms
 - Vanilla JavaScript ES modules
-- CSS 3D transforms for the interactive frog
-- Three.js stored locally in `js/vendor/` for the optional atmospheric background
-- WebGL only for the optional background
+- Canvas 2D for the atmospheric background
 - Web Audio API
 - Web Speech API
 
-The Three.js module is included locally for the optional background, so the site does not depend on a CDN. The frog is rendered with HTML and CSS 3D transforms and therefore remains visible even when WebGL is disabled. All answers, branding assets, effects, and game logic load directly from the project.
+The project uses no framework, npm package, CDN, or server-side component. It can be published directly through GitHub Pages.
 
 ## Project structure
 
 ```text
 am-i-an-idiot/
 ├── index.html
-├── README.md
-├── LICENSE
 ├── 404.html
+├── README.md
+├── AUDIT.md
+├── LICENSE
+├── benchmarks/
+│   └── performance-summary.json
 ├── css/
 │   ├── styles.css
 │   ├── effects.css
@@ -58,18 +54,16 @@ am-i-an-idiot/
 │   ├── resultEngine.js
 │   ├── audio.js
 │   ├── speech.js
-│   ├── threeLoader.js
-│   ├── vendor/
-│   │   ├── three.module.min.js
-│   │   └── THREE-LICENSE.txt
 │   ├── scene.js
 │   ├── frogBall.js
 │   ├── interaction.js
 │   ├── effects.js
-│   └── accessibility.js
+│   ├── accessibility.js
+│   └── performanceMonitor.js
 └── assets/
     ├── images/
-    │   ├── beetales-avatar.png
+    │   ├── beetales-avatar.webp
+    │   ├── beetales-logo-v2.webp
     │   └── beetales-logo-v2.png
     └── icons/
         ├── favicon.ico
@@ -78,44 +72,38 @@ am-i-an-idiot/
 
 ## Run locally in Visual Studio Code
 
-Because the JavaScript uses ES modules, use a local web server instead of double-clicking `index.html`.
+Because the project uses JavaScript modules, run it through a local web server rather than double-clicking `index.html`.
 
-1. Open this folder in Visual Studio Code.
-2. Install the free **Live Server** extension if it is not already installed.
+1. Open the project folder in Visual Studio Code.
+2. Install the free **Live Server** extension.
 3. Right-click `index.html`.
-4. Select **Open with Live Server**.
-5. Wait briefly for the message `BUILDING THE 3D ORACLE` to disappear.
+4. Choose **Open with Live Server**.
 
-No terminal commands, dependencies, compilation, or builds are required.
+No terminal command, dependency installation, compilation, or build step is required.
 
 ## How to shake the frog
 
 ### Mouse
 
-1. Hold the left mouse button over the frog.
-2. Move rapidly left and right several times.
-3. Watch the `SHAKE ENERGY` meter.
-4. Release after it reaches 100%.
-
-Direction changes receive a bonus, so repeatedly reversing left and right works better than dragging once across the screen.
+Hold the left mouse button over the frog, move rapidly left and right several times, and release when the meter reaches 100%. Reversing direction earns more energy than dragging once across the screen.
 
 ### Touch
 
-Hold the frog and drag rapidly left and right with one finger. Pointer capture keeps the shake active even when the finger briefly leaves the visible model.
+Hold the frog and drag rapidly left and right with one finger. Pointer capture keeps the shake active if the finger briefly moves outside the model.
 
-### Keyboard and fallback button
+### Keyboard and fallback
 
-Focus the frog and press Enter or Space, or use the `SHAKE THE FROG` button. The fallback control performs a complete animated 3D shake.
+Focus the frog and press Enter or Space, or select **SHAKE THE FROG**. The fallback button performs the complete animated shake.
 
 ## Edit answers
 
-Open `js/answers.js`. Each answer has this structure:
+Open `js/answers.js`. Each entry follows this structure:
 
 ```js
 { id: "c01", category: "COMMON", text: "Probably, but the evidence is still loading." }
 ```
 
-Keep every `id` unique. Supported categories are:
+Supported categories:
 
 - `COMMON`
 - `SNARKY`
@@ -123,9 +111,11 @@ Keep every `id` unique. Supported categories are:
 - `RARE_TRUTH`
 - `FATAL`
 
+Keep each answer ID unique.
+
 ## Change probabilities
 
-Open `js/config.js` and edit `CATEGORY_WEIGHTS`. The values must total exactly 100.
+Open `js/config.js` and edit `CATEGORY_WEIGHTS`. Values must total exactly 100.
 
 ```js
 COMMON: 49.7
@@ -153,17 +143,23 @@ To one of:
 "FATAL"
 ```
 
-Return the value to `null` before publishing.
+Return it to `null` before publishing.
 
-## Disable the FATAL redirect
+## Test FATAL without leaving the page
 
-For local testing, edit `js/config.js`:
+Use:
 
 ```js
+export const DEV_FORCE_RESULT = "FATAL";
 export const ENABLE_FATAL_REDIRECT = false;
 ```
 
-The animation and countdown will still run, but the browser will remain on the page.
+The complete effect and countdown will run, but the browser will remain on the site. Return the settings to:
+
+```js
+export const DEV_FORCE_RESULT = null;
+export const ENABLE_FATAL_REDIRECT = true;
+```
 
 The configured redirect is:
 
@@ -171,47 +167,62 @@ The configured redirect is:
 https://replug.link/ccef1e2c
 ```
 
-The redirect occurs only after a user starts the game and receives the 0.5% FATAL result. A visible escape button and the Escape key can cancel it.
+A visible escape button and the Escape key can cancel the redirect.
+
+## Performance diagnostics
+
+Append `?perf=1` to the site URL:
+
+```text
+https://username.github.io/repository/?perf=1
+```
+
+The optional overlay shows:
+
+- FPS
+- P95 frame duration
+- Pointer-to-frame latency
+- Long-task count and duration
+- JavaScript heap usage when supported
+- DOM-node count
+
+The monitor is dynamically imported and is not downloaded during normal gameplay. Benchmark methodology and before/after results are documented in `AUDIT.md`.
 
 ## Publish with GitHub Pages
 
 1. Create a GitHub repository.
-2. Upload every file and folder from this project.
+2. Upload the contents of this project.
 3. Open the repository's **Settings**.
-4. Open **Pages**.
-5. Under **Build and deployment**, choose **Deploy from a branch**.
+4. Select **Pages**.
+5. Under **Build and deployment**, select **Deploy from a branch**.
 6. Select the `main` branch and `/ (root)`.
-7. Save.
-8. Open the generated GitHub Pages URL after deployment finishes.
+7. Save and open the generated GitHub Pages URL after deployment finishes.
 
-This project uses relative asset paths and works from a repository subdirectory. GitHub Actions are not required.
+All project paths are relative, so the site works inside a GitHub Pages repository subdirectory. GitHub Actions are not required.
 
 ## Accessibility
 
-- Keyboard activation with Enter and Space
+- Enter and Space keyboard activation
 - Visible focus indicators
 - ARIA labels and live result announcements
 - Touch-friendly controls
 - Reduced-motion behavior
-- Sound-independent visual feedback
-- Voice-independent text feedback
+- Visual feedback independent of sound and voice
 - Cancellable FATAL redirect
 - No unsafe rapid flashing
 
 ## Browser notes
 
-The frog requires CSS 3D transforms and JavaScript module support, which are available in current Chrome, Edge, Firefox, and Safari releases. WebGL is optional and is used only for the atmospheric background; the game and frog remain functional without it.
+Current Chrome, Edge, Firefox, and Safari releases support the required JavaScript modules, Canvas 2D, and CSS transforms. The project does not require WebGL.
 
-Web Speech API voice availability and quality vary by browser and operating system. Unsupported speech synthesis disables the voice control without breaking the rest of the page.
+Web Speech API voice availability and quality vary by browser and operating system. If speech synthesis is unsupported, the voice control is disabled without affecting the game.
 
-Web Audio begins only after user interaction, as required by modern browsers.
+The audio graph is prepared silently before controls are enabled, but playback and resume occur only in response to user interaction. No audio autoplays on page load.
 
 ## Privacy
 
-All answer selection and game logic run locally in the browser. The project does not collect or transmit personal data and uses no analytics, cookies, camera, microphone, or sensor permissions.
-
-The browser loads Three.js from the local `js/vendor/` directory only for the optional background. The frog, interface, answers, audio logic, and interactions run locally. The only intentional external navigation is the configurable FATAL redirect.
+All answer selection and game logic run locally in the browser. The project does not collect or transmit personal data and uses no analytics, cookies, camera, microphone, or device-motion permissions. The only intentional external navigation is the configurable FATAL redirect.
 
 ## License
 
-MIT. Copyright © 2026 Sorairei. The supplied BeeTales branding artwork remains the property of its owner and is included for this specific project.
+MIT. Copyright © 2026 Sorairei. BeeTales logos and character artwork remain the property of their owner and are included for this project rather than granted for unrelated branding use.
