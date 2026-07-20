@@ -9,7 +9,7 @@ export const CATEGORY_WEIGHTS = Object.freeze({
   SNARKY: 28,
   SAVAGE: 15,
   RARE_TRUTH: 6.8,
-  FATAL: 0.2,
+  FATAL: 3.2,
 });
 
 export const SHAKE_THRESHOLD = 2400;
