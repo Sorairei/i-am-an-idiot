@@ -2,7 +2,7 @@ export const DEV_FORCE_RESULT = null;
 // Supported values: null, "COMMON", "SNARKY", "SAVAGE", "RARE_TRUTH", "FATAL"
 
 export const ENABLE_FATAL_REDIRECT = true;
-export const FATAL_REDIRECT_URL = "https://replug.link/ccef1e2c";
+export const FATAL_REDIRECT_URL = "https://www.youtube.com/watch?v=QDia3e12czc";
 
 export const CATEGORY_WEIGHTS = Object.freeze({
   COMMON: 40.2,
