@@ -1,0 +1,58 @@
+/* --------------------------------------------------------------------------
+   V7 true WebGL SphereGeometry oracle
+   -------------------------------------------------------------------------- */
+.frog-canvas {
+  display: block !important;
+  position: absolute;
+  z-index: 3;
+  left: 50%;
+  top: 50%;
+  width: 112%;
+  height: 112%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  pointer-events: none;
+  filter: saturate(1.08) contrast(1.02);
+}
+
+.frog-orb {
+  contain: layout paint style;
+  transform-style: preserve-3d;
+}
+
+.frog-orb.is-ready {
+  background: radial-gradient(circle, rgba(80, 216, 31, .04), transparent 69%);
+}
+
+.frog-orb.is-shaking .frog-canvas {
+  filter: saturate(1.15) contrast(1.04) drop-shadow(0 0 18px rgba(var(--theme-rgb), .25));
+}
+
+.frog-orb.is-turning .frog-canvas,
+.frog-orb.is-revealed .frog-canvas {
+  filter: saturate(1.08) contrast(1.04) drop-shadow(0 0 22px rgba(var(--theme-rgb), .28));
+}
+
+.frog-model,
+.sphere-volume,
+.sphere-shell,
+.frog-surface-rotator,
+.frog-equator {
+  display: none !important;
+}
+
+.footer a {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(170,255,44,.32);
+  transition: color .2s ease, border-color .2s ease;
+}
+.footer a:hover,
+.footer a:focus-visible {
+  color: var(--lime);
+  border-color: var(--lime);
+}
+
+/* The implementation badge was useful during development, but it should not
+   overlap the final artwork on desktop or mobile. */
+.model-label { display: none !important; }

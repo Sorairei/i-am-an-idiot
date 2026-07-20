@@ -2,11 +2,11 @@
 
 A satirical interactive frog oracle designed for GitHub Pages. Shake the spherical BeeTales frog with a mouse or finger, receive a weighted-rarity verdict, and try not to encounter the rare FATAL result.
 
-The frog is a browser-native CSS 3D sphere with volumetric depth, a construction helmet, orange safety goggles, animated eyes, and independently rotating front and answer surfaces. Its design is based on the supplied BeeTales avatar while remaining fully interactive rather than using the reference image as a flat sprite.
+The frog is a genuine WebGL sphere built with Three.js `SphereGeometry(1, 64, 48)`. The supplied BeeTales avatar is cleaned and composited directly into an equirectangular texture mapped onto the same curved surface. `MeshStandardMaterial`, ambient light, point lights, and a rear oracle socket provide real volume from every viewing angle.
 
 ## Features
 
-- Spherical CSS 3D BeeTales frog with helmet, goggles, face, depth, highlights, and shadow
+- True Three.js `SphereGeometry` BeeTales frog with 64×48 segments, curved avatar texture, lighting, highlights, and shadow
 - Mouse and touch shaking with direction reversal, velocity scoring, inertia, jitter, and pointer capture
 - Eyes that follow the pointer
 - Magic-8-Ball-style rotating answer window
@@ -23,13 +23,14 @@ The frog is a browser-native CSS 3D sphere with volumetric depth, a construction
 ## Technology
 
 - HTML5
-- CSS3 and CSS 3D transforms
+- CSS3
 - Vanilla JavaScript ES modules
+- Three.js r166 included locally as a pinned ES module for the interactive `SphereGeometry`
 - Canvas 2D for the atmospheric background
 - Web Audio API
 - Web Speech API
 
-The project uses no framework, npm package, CDN, or server-side component. It can be published directly through GitHub Pages.
+The project uses no framework, npm installation, build process, or server-side component. Three.js r166 is included inside `js/vendor/`, so the site does not depend on a CDN and can be published directly through GitHub Pages.
 
 ## Project structure
 
@@ -45,7 +46,8 @@ am-i-an-idiot/
 ├── css/
 │   ├── styles.css
 │   ├── effects.css
-│   └── responsive.css
+│   ├── responsive.css
+│   └── sphere3d.css
 ├── js/
 │   ├── main.js
 │   ├── config.js
@@ -59,7 +61,9 @@ am-i-an-idiot/
 │   ├── interaction.js
 │   ├── effects.js
 │   ├── accessibility.js
-│   └── performanceMonitor.js
+│   ├── performanceMonitor.js
+│   └── vendor/
+│       └── three.module.min.js
 └── assets/
     ├── images/
     │   ├── beetales-avatar.webp
@@ -213,7 +217,7 @@ All project paths are relative, so the site works inside a GitHub Pages reposito
 
 ## Browser notes
 
-Current Chrome, Edge, Firefox, and Safari releases support the required JavaScript modules, Canvas 2D, and CSS transforms. The project does not require WebGL.
+Current Chrome, Edge, Firefox, and Safari releases support the required JavaScript modules, Canvas 2D, and WebGL. WebGL is required for the true geometric sphere; a static BeeTales image is shown only as a graceful fallback when WebGL initialization fails.
 
 Web Speech API voice availability and quality vary by browser and operating system. If speech synthesis is unsupported, the voice control is disabled without affecting the game.
 
@@ -225,4 +229,4 @@ All answer selection and game logic run locally in the browser. The project does
 
 ## License
 
-MIT. Copyright © 2026 Sorairei. BeeTales logos and character artwork remain the property of their owner and are included for this project rather than granted for unrelated branding use.
+MIT. Copyright © 2026 The BeeTales - Sorairei. BeeTales logos and character artwork remain the property of their owner and are included for this project rather than granted for unrelated branding use.
