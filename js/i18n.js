@@ -125,12 +125,11 @@ export const UI = {
 };
 
 export function initI18n() {
-  const saved = getString(LANG_STORAGE_KEY, "en");
-  if (SUPPORTED_LANGS.includes(saved)) {
+  const saved = getString(LANG_STORAGE_KEY, null);
+  if (saved && SUPPORTED_LANGS.includes(saved)) {
     currentLang = saved;
   } else {
-    const browserLang = navigator.language.slice(0, 2).toLowerCase();
-    currentLang = SUPPORTED_LANGS.includes(browserLang) ? browserLang : "en";
+    currentLang = "en";
   }
   document.documentElement.lang = currentLang;
 }
