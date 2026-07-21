@@ -114,6 +114,9 @@ button:focus-visible, [tabindex]:focus-visible, a:focus-visible {
 .icon-button:hover { transform: translateY(-2px); border-color: rgba(170,255,44,.65); background: rgba(8, 37, 18, .9); }
 .icon-button[aria-pressed="false"] { opacity: .52; }
 .icon-button > span:first-child { font-weight: 900; color: var(--lime); }
+.sponsor-button { text-decoration: none; }
+.sponsor-button > span:first-child { color: #bf3989; }
+.sponsor-button:hover { border-color: rgba(191,57,137,.65); }
 .control-label { font-size: .78rem; font-weight: 800; text-transform: uppercase; letter-spacing: .08em; }
 
 .experience {
