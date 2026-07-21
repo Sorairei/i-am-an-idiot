@@ -431,6 +431,8 @@ button:focus-visible, [tabindex]:focus-visible, a:focus-visible {
 .dialog-content { margin: 20px 0; color: #c9d7c9; line-height: 1.55; }
 .dialog-content p { margin: 10px 0; }
 .dialog-confirm { width: 100%; }
+.lang-options { display: flex; flex-direction: column; gap: 12px; }
+.lang-option { width: 100%; }
 
 .sr-only {
   position: absolute !important;

@@ -6,6 +6,7 @@ import { InteractionController } from "./interaction.js";
 import { EffectsController } from "./effects.js";
 import { AccessibilityController } from "./accessibility.js";
 import { selectResult, validateAnswerInventory } from "./resultEngine.js";
+import { initI18n, setLang, applyTranslations, t } from "./i18n.js";
 
 const APP_START = performance.now();
 const $ = selector => document.querySelector(selector);
@@ -33,7 +34,12 @@ const elements = {
   fatalMessage: $("#fatal-message"),
   fatalCountdown: $("#fatal-countdown"),
   fatalEscape: $("#fatal-escape"),
+  langDialog: $("#lang-dialog"),
+  langButton: $("#lang-button"),
 };
+
+initI18n();
+applyTranslations();
 
 const audio = new AudioManager();
 const speech = new SpeechManager();
@@ -65,31 +71,41 @@ function syncToggle(button, enabled, onLabel, offLabel) {
   button.setAttribute("aria-label", enabled ? onLabel : offLabel);
 }
 
-syncToggle(elements.soundToggle, audio.enabled, "Mute sound", "Enable sound");
-syncToggle(elements.voiceToggle, speech.enabled, "Disable voice", "Enable voice");
+syncToggle(elements.soundToggle, audio.enabled, t("nav-sound-mute") || "Mute sound", t("nav-sound-enable") || "Enable sound");
+syncToggle(elements.voiceToggle, speech.enabled, t("nav-voice-disable") || "Disable voice", t("nav-voice-enable") || "Enable voice");
 
 if (!speech.supported) {
   elements.voiceToggle.disabled = true;
-  elements.voiceToggle.title = "Speech synthesis is unavailable in this browser.";
-  elements.voiceToggle.setAttribute("aria-label", "Voice unavailable");
+  elements.voiceToggle.title = t("voice-unavailable-title") || "Speech synthesis is unavailable in this browser.";
+  elements.voiceToggle.setAttribute("aria-label", t("voice-unavailable") || "Voice unavailable");
 }
 
 elements.soundToggle.addEventListener("click", async () => {
   audio.setEnabled(!audio.enabled);
   if (audio.enabled) await audio.ensureStarted();
-  syncToggle(elements.soundToggle, audio.enabled, "Mute sound", "Enable sound");
+  syncToggle(elements.soundToggle, audio.enabled, t("nav-sound-mute") || "Mute sound", t("nav-sound-enable") || "Enable sound");
 });
 
 elements.voiceToggle.addEventListener("click", () => {
   speech.setEnabled(!speech.enabled);
-  syncToggle(elements.voiceToggle, speech.enabled, "Disable voice", "Enable voice");
+  syncToggle(elements.voiceToggle, speech.enabled, t("nav-voice-disable") || "Disable voice", t("nav-voice-enable") || "Enable voice");
+});
+
+elements.langButton.addEventListener("click", () => {
+  elements.langDialog.showModal();
+});
+
+document.querySelectorAll(".lang-option").forEach(btn => {
+  btn.addEventListener("click", () => {
+    setLang(btn.dataset.lang);
+  });
 });
 
 async function revealAnswer() {
   if (revealInProgress) return;
   revealInProgress = true;
   document.body.classList.add("is-busy");
-  setStatus("The 3D oracle is rotating toward the answer window...");
+  setStatus(t("status-rotating") || "The 3D oracle is rotating toward the answer window...");
 
   const revealStart = performance.now();
   await new Promise(resolve => setTimeout(resolve, 100));
@@ -108,11 +124,11 @@ async function revealAnswer() {
   elements.shakeButton.hidden = true;
   elements.againButton.hidden = false;
   setStatus(currentAnswer.category === "RARE_TRUTH"
-    ? "The frog became unexpectedly reasonable."
-    : "Verdict delivered. No refunds.");
+    ? (t("status-rare-truth") || "The frog became unexpectedly reasonable.")
+    : (t("status-verdict") || "Verdict delivered. No refunds."));
 
   if (currentAnswer.category === "FATAL") {
-    setStatus("Fatal verdict. The frog is preparing relocation.");
+    setStatus(t("status-fatal") || "Fatal verdict. The frog is preparing relocation.");
     await new Promise(resolve => setTimeout(resolve, 1300));
     const fatalResult = await effects.fatalSequence(currentAnswer.text);
     if (!fatalResult.redirected) {
@@ -142,7 +158,7 @@ function bindReplay() {
     interaction?.reset();
     elements.againButton.hidden = true;
     elements.shakeButton.hidden = false;
-    setStatus("Mouse, touch, Enter, or Space");
+    setStatus(t("status-text"));
     elements.orb.focus({ preventScroll: true });
   });
 }
@@ -150,7 +166,7 @@ function bindReplay() {
 async function bootstrap() {
   document.querySelector("#year").textContent = new Date().getFullYear();
   elements.shakeButton.disabled = true;
-  setStatus("Assembling the BeeTales frog oracle...");
+  setStatus(t("status-loading") || "Assembling the BeeTales frog oracle...");
 
   try {
     const [frogResult] = await Promise.allSettled([frog.init(), scene.init()]);
@@ -172,7 +188,7 @@ async function bootstrap() {
     });
 
     elements.shakeButton.disabled = false;
-    setStatus("Grab the spherical frog and shake it left and right.");
+    setStatus(t("status-ready") || "Grab the spherical frog and shake it left and right.");
     performance.mark("oracle-interactive");
     console.info(`[Benchmark] Interactive oracle ready in ${Math.round(performance.now() - APP_START)} ms.`);
   } catch (error) {
@@ -180,8 +196,8 @@ async function bootstrap() {
     elements.orb.classList.remove("is-loading");
     elements.orb.classList.add("webgl-failed");
     elements.shakeButton.disabled = true;
-    setStatus("The frog interface could not initialize. Reload the page in a current browser.");
-    accessibility.announce("The frog oracle could not load.");
+    setStatus(t("status-failed") || "The frog interface could not initialize. Reload the page in a current browser.");
+    accessibility.announce(t("announce-failed") || "The frog oracle could not load.");
   }
 }
 
@@ -190,7 +206,7 @@ try {
   console.info("Frog oracle answer inventory:", inventory);
 } catch (error) {
   console.error(error);
-  setStatus("The frog's answer database is broken. Check the console.");
+  setStatus(t("status-broken") || "The frog's answer database is broken. Check the console.");
 }
 
 bindReplay();

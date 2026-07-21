@@ -1,6 +1,7 @@
 import { ANSWERS } from "./answers.js";
 import { CATEGORY_WEIGHTS, DEV_FORCE_RESULT, HISTORY_SIZE, HISTORY_STORAGE_KEY } from "./config.js";
 import { getSessionList, setSessionList } from "./storage.js";
+import { getLang } from "./i18n.js";
 
 const VALID_CATEGORIES = Object.keys(CATEGORY_WEIGHTS);
 
@@ -31,7 +32,7 @@ export function selectResult() {
   const category = weightedCategory();
   const history = getSessionList(HISTORY_STORAGE_KEY);
   const recentIds = new Set(history.slice(-HISTORY_SIZE));
-  const categoryAnswers = ANSWERS.filter(answer => answer.category === category);
+  const categoryAnswers = ANSWERS[getLang()].filter(answer => answer.category === category);
   const freshAnswers = categoryAnswers.filter(answer => !recentIds.has(answer.id));
   const pool = freshAnswers.length ? freshAnswers : categoryAnswers;
   const answer = pool[Math.floor(secureRandom() * pool.length)];
@@ -43,7 +44,7 @@ export function selectResult() {
 
 export function validateAnswerInventory() {
   const counts = Object.fromEntries(VALID_CATEGORIES.map(category => [category, 0]));
-  for (const answer of ANSWERS) {
+  for (const answer of ANSWERS[getLang()]) {
     if (!VALID_CATEGORIES.includes(answer.category)) throw new Error(`Unknown answer category: ${answer.category}`);
     counts[answer.category] += 1;
   }
